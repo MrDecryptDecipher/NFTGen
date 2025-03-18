@@ -1,0 +1,64 @@
+{
+  "manifest_version": 3,
+  "name": "NFTGen",
+  "version": "1.0.0",
+  "description": "NFT Generation and Management Tool for Ethereum",
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "favicon.ico",
+      "48": "favicon.ico",
+      "128": "favicon.ico"
+    }
+  },
+  "icons": {
+    "16": "favicon.ico",
+    "48": "favicon.ico",
+    "128": "favicon.ico"
+  },
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "http://3.111.22.56:5174/*",
+    "ws://3.111.22.56:5176/*",
+    "https://*.alchemyapi.io/*",
+    "https://*.infura.io/*",
+    "https://*.pinata.cloud/*",
+    "https://*.ipfs.io/*",
+    "https://*.nft.storage/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "src/extension/inpage/*",
+        "src/extension/*",
+        "inpage.js",
+        "content.js",
+        "assets/*",
+        "images/*",
+        "fonts/*",
+        "scripts/*",
+        "index.html",
+        "*.js",
+        "*.css",
+        "*.woff",
+        "*.woff2",
+        "*.ttf"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; connect-src 'self' http://3.111.22.56:5174 ws://3.111.22.56:5176 https://*.alchemyapi.io https://*.infura.io https://*.pinata.cloud https://*.ipfs.io https://*.nft.storage"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ]
+} 

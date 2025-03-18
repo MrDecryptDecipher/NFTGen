@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NFTGen and Nija Wallet Integration Verification</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f7fa;
+    }
+    h1, h2 {
+      color: #4a5568;
+    }
+    h1 {
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 10px;
+    }
+    button {
+      background-color: #6c5ce7;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 20px 0;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #5b4cc4;
+    }
+    pre {
+      background-color: #2d3748;
+      color: #e2e8f0;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 14px;
+      margin: 15px 0;
+    }
+    .output {
+      background-color: #fff;
+      border: 1px solid #e2e8f0;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 20px;
+      height: 300px;
+      overflow-y: auto;
+      font-family: monospace;
+    }
+    .status {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .success {
+      background-color: #c6f6d5;
+      color: #2f855a;
+      border: 1px solid #9ae6b4;
+    }
+    .error {
+      background-color: #fed7d7;
+      color: #c53030;
+      border: 1px solid #feb2b2;
+    }
+  </style>
+</head>
+<body>
+  <h1>NFTGen and Nija Wallet Integration Verification</h1>
+  
+  <p>This tool helps verify the integration between NFTGen and Nija Wallet by creating a mock NFT transaction and checking if it appears in the Transactions tab.</p>
+  
+  <div>
+    <button id="runVerification">Run Verification</button>
+  </div>
+  
+  <div class="status" id="status" style="display: none;"></div>
+  
+  <h2>Instructions</h2>
+  <ol>
+    <li>Make sure both NFTGen and Nija Wallet are running in the same browser</li>
+    <li>Click the "Run Verification" button</li>
+    <li>Check the output for logs and instructions</li>
+    <li>Verify that the NFT transaction appears in the Transactions tab of Nija Wallet</li>
+    <li>Click on the transaction to view its details</li>
+  </ol>
+  
+  <h2>Output</h2>
+  <div class="output" id="output"></div>
+  
+  <script>
+    // Override console.log to capture output
+    const output = document.getElementById('output');
+    const originalConsoleLog = console.log;
+    const originalConsoleError = console.error;
+    
+    console.log = function() {
+      const args = Array.from(arguments);
+      originalConsoleLog.apply(console, args);
+      
+      const message = args.map(arg => {
+        if (typeof arg === 'object') {
+          return JSON.stringify(arg, null, 2);
+        } else {
+          return arg;
+        }
+      }).join(' ');
+      
+      const logLine = document.createElement('div');
+      logLine.textContent = message;
+      output.appendChild(logLine);
+      output.scrollTop = output.scrollHeight;
+    };
+    
+    console.error = function() {
+      const args = Array.from(arguments);
+      originalConsoleError.apply(console, args);
+      
+      const message = args.map(arg => {
+        if (typeof arg === 'object') {
+          return JSON.stringify(arg, null, 2);
+        } else {
+          return arg;
+        }
+      }).join(' ');
+      
+      const logLine = document.createElement('div');
+      logLine.textContent = '❌ ERROR: ' + message;
+      logLine.style.color = '#c53030';
+      output.appendChild(logLine);
+      output.scrollTop = output.scrollHeight;
+    };
+    
+    // Handle run button click
+    document.getElementById('runVerification').addEventListener('click', function() {
+      output.innerHTML = '';
+      const status = document.getElementById('status');
+      status.className = 'status';
+      status.style.display = 'none';
+      
+      console.log('Loading verification script...');
+      
+      // Load and execute the verification script
+      const script = document.createElement('script');
+      script.src = 'verify-integration.js';
+      script.onerror = function() {
+        console.error('Failed to load verification script!');
+        status.textContent = 'Error: Failed to load verification script. Please check the console for details.';
+        status.className = 'status error';
+        status.style.display = 'block';
+      };
+      script.onload = function() {
+        console.log('Verification script loaded, executing...');
+        status.textContent = 'Verification complete! Check the output for details.';
+        status.className = 'status success';
+        status.style.display = 'block';
+      };
+      document.body.appendChild(script);
+    });
+  </script>
+</body>
+</html> 
