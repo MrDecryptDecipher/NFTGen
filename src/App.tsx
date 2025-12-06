@@ -1,205 +1,200 @@
-import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ApolloProvider } from '@apollo/client';
-import { client } from './lib/apollo';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { setupNijaWalletConnection, verifyWalletConnection, setupWalletEventListeners } from './walletConnection';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
+import React, { useEffect, useState, Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { WalletContext } from './context/WalletContext';
+import { NFTContext } from './context/NFTContext';
+import { Navbar } from './components/Navbar';
+import { useAuth } from './hooks/useAuth';
 
-// Pages
-import { Home } from './pages/Home';
-import { NFTDetails } from './pages/NFTDetails';
+// Import pages
+import Home from './pages/Home';
 import CreateNFT from './pages/CreateNFT';
 import Gallery from './pages/Gallery';
 import History from './pages/History';
+import NFTDetails from './pages/NFTDetails';
 
-// Components
-import { ErrorBoundary } from './components/ErrorBoundary';
-import { Dashboard } from './components/Dashboard';
-import { Navbar } from './components/Navbar';
+// Import services
+import { alchemyNFTService } from './services/AlchemyNFTService';
+import { realPerformanceMonitor } from './services/realPerformanceMonitor';
 
-// Context
-import { WalletProvider } from './context/WalletContext';
-import { NFTProvider } from './context/NFTContext';
-
-const theme = createTheme({
-  palette: {
-    mode: 'dark',
-    primary: {
-      main: '#90caf9',
-    },
-    secondary: {
-      main: '#f48fb1',
-    },
-  },
-});
+// Simple loading component
+const LoadingFallback = () => (
+  <div style={{
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '50vh',
+    gap: '1rem'
+  }}>
+    <div style={{
+      width: '40px',
+      height: '40px',
+      border: '4px solid #f3f3f3',
+      borderTop: '4px solid #3498db',
+      borderRadius: '50%',
+      animation: 'spin 1s linear infinite'
+    }}></div>
+    <p>Loading content...</p>
+    <style>{`
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    `}</style>
+  </div>
+);
 
 const App: React.FC = () => {
-  const [address, setAddress] = useState<string | null>(null);
-  const [chainId, setChainId] = useState<string | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [provider, setProvider] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [nfts, setNfts] = useState([]);
 
+  // Use centralized authentication
+  const { isAuthenticated, walletAddress, isLoading: authLoading, login } = useAuth();
+
+  // Check for URL parameters on app startup for automatic authentication
   useEffect(() => {
-    const initWallet = async () => {
-      try {
-        // Check for session parameter
-        const urlParams = new URLSearchParams(window.location.search);
-        const encodedSession = urlParams.get('session');
-        
-        if (encodedSession) {
-          try {
-            // Decode and parse session data
-            const sessionData = JSON.parse(decodeURIComponent(encodedSession));
-            localStorage.setItem('nija_wallet_session', JSON.stringify(sessionData));
-            
-            // Set wallet state
-            setAddress(sessionData.address);
-            setChainId(sessionData.chainId);
-            setIsConnected(true);
-            
-            toast.success('Connected with Nija Wallet');
-          } catch (error) {
-            console.error('Error parsing session data:', error);
-            toast.error('Failed to connect with Nija Wallet');
+    const checkUrlParameters = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionId = urlParams.get('sessionId');
+      const address = urlParams.get('address');
+
+      if (sessionId && address && !isAuthenticated) {
+        console.log('🔗 NFTGen: Detected session from Nwallet, attempting automatic authentication...');
+        console.log('Session ID:', sessionId);
+        console.log('Address:', address);
+
+        try {
+          // Check if session is already stored in localStorage (from Nwallet)
+          const storedSession = localStorage.getItem('nftgen_nwallet_session');
+          if (storedSession) {
+            console.log('✅ NFTGen: Found session in localStorage, authentication should be automatic');
+            // Clear URL parameters to clean up the URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+            // The useAuth hook will automatically pick up the session from localStorage
+          } else {
+            console.log('⚠️ NFTGen: Session not found in localStorage, user will need to login manually');
           }
-        } else if (!isConnected && !isConnecting) {
-          // Check for existing connection only if not already connected/connecting
-          const connection = await verifyWalletConnection();
-          if (connection) {
-            setAddress(connection);
-            setIsConnected(true);
-          }
+        } catch (error) {
+          console.error('❌ NFTGen: Error during automatic authentication setup:', error);
         }
-      } catch (error) {
-        console.error('Error initializing wallet:', error);
-        toast.error('Failed to initialize wallet');
       }
     };
 
-    initWallet();
-  }, [isConnected, isConnecting]);
+    checkUrlParameters();
+  }, []); // Run only once on component mount
 
-  // Handle wallet events
+  // Derive state from auth service
+  const address = walletAddress || '';
+  const isConnected = isAuthenticated;
+
+  // Initialize Alchemy NFT Service
   useEffect(() => {
-    if (!provider) return;
+    console.log('✅ Real Performance Observer initialized');
+    // Performance monitoring is automatically initialized in the constructor
 
-    const handleAccountsChanged = (accounts: string[]) => {
-      setAddress(accounts[0] || null);
-    };
+    console.log('✅ Alchemy NFT Service initialized with Sepolia network and performance monitoring');
 
-    const handleChainChanged = (chainId: string) => {
-      setChainId(chainId);
-    };
+    // Initialize wallet connection using centralized auth
+    console.log('App: Initializing with centralized authentication...');
+    initializeWalletConnection();
 
-    const handleDisconnect = () => {
-      setAddress(null);
-      setChainId(null);
-      setProvider(null);
-      setIsConnected(false);
-    };
+    setIsLoading(false);
+  }, [isAuthenticated, address]);
 
-    provider.on('accountsChanged', handleAccountsChanged);
-    provider.on('chainChanged', handleChainChanged);
-    provider.on('disconnect', handleDisconnect);
-
-    return () => {
-      provider.removeListener('accountsChanged', handleAccountsChanged);
-      provider.removeListener('chainChanged', handleChainChanged);
-      provider.removeListener('disconnect', handleDisconnect);
-    };
-  }, [provider]);
-
-  // Create a wallet context value to pass to components
-  const walletContextValue = {
-    address,
-    chainId,
-    isConnected,
-    isConnecting,
-    error: null,
-    connect: async () => {
-      try {
-        setIsConnecting(true);
-        
-        // Initialize wallet and get address
-        const result = await setupNijaWalletConnection();
-        setProvider(result.provider);
-        setAddress(result.address);
-        setChainId(result.chainId.toString(16));
-        setIsConnected(true);
-        
-        console.log('Successfully connected to Nija Wallet:', result.address);
-      } catch (error) {
-        console.error('Wallet connection error:', error);
-        setAddress(null);
-        setChainId(null);
-        setIsConnected(false);
-      } finally {
-        setIsConnecting(false);
+  const initializeWalletConnection = async () => {
+    try {
+      if (isAuthenticated && address) {
+        console.log('App: User authenticated with address:', address);
+        // Load NFTs for the authenticated address
+        await loadNFTs(address);
+      } else {
+        console.log('App: No authenticated user found');
       }
-    },
-    disconnect: async () => {
-      try {
-        await verifyWalletConnection();
-        setAddress(null);
-        setChainId(null);
-        setProvider(null);
-        setIsConnected(false);
-      } catch (error) {
-        console.error('Error disconnecting wallet:', error);
-      }
+    } catch (error) {
+      console.error('App: Error initializing wallet connection:', error);
     }
   };
 
+  const loadNFTs = async (userAddress: string) => {
+    try {
+      console.log(`🔍 Fetching NFTs for owner: ${userAddress} using Alchemy API`);
+      const result = await alchemyNFTService.getNFTsForOwner(userAddress);
+
+      console.log(`✅ Retrieved ${result.nfts.length} NFTs from Alchemy`);
+      setNfts(result.nfts);
+
+      // Store in localStorage for offline access
+      localStorage.setItem('nftgen_user_nfts_alchemy', JSON.stringify(result.nfts));
+      console.log('📦 Stored NFTs in localStorage for offline access');
+
+    } catch (error) {
+      console.error('App: Error loading NFTs:', error);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white',
+        fontSize: '18px',
+        fontFamily: 'system-ui, -apple-system, sans-serif'
+      }}>
+        Loading NFTGen...
+      </div>
+    );
+  }
+
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <ErrorBoundary>
-        <ApolloProvider client={client}>
-          <WalletProvider>
-            <NFTProvider>
-              <Router>
-                <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-black text-white">
-                  <Navbar isWalletConnected={isConnected} walletAddress={address || ''} />
-                  <div className="app-container relative">
-                    <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
-                    <div className="relative">
-                      <div className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
-                        <div className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-purple-500 to-purple-900 opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" />
-                      </div>
-                    </div>
-                    <main className="container mx-auto px-4 py-8">
-                      <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/nft/:id" element={<NFTDetails />} />
-                        <Route path="/dashboard" element={<Dashboard address={address || ''} />} />
-                        <Route path="/create" element={<CreateNFT />} />
-                        <Route path="/gallery" element={<Gallery />} />
-                        <Route path="/history" element={<History />} />
-                      </Routes>
-                    </main>
-                    <div className="relative">
-                      <div className="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
-                        <div className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-purple-800 to-purple-900 opacity-20 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" />
-                      </div>
-                    </div>
+    <ErrorBoundary>
+      <WalletContext.Provider value={{
+        address,
+        isConnected,
+        setAddress: () => {}, // No longer needed - managed by auth service
+        setIsConnected: () => {}, // No longer needed - managed by auth service
+        loadNFTs
+      }}>
+        <NFTContext.Provider value={{
+          nfts,
+          setNfts,
+          isLoading: false
+        }}>
+          <Router>
+            <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+              <Navbar />
+              <main>
+                <Suspense fallback={
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '50vh',
+                    color: 'white'
+                  }}>
+                    Loading...
                   </div>
-                </div>
-                <ToastContainer 
-                  position="bottom-right" 
-                  autoClose={5000}
-                  theme="dark"
-                  toastClassName="bg-slate-800 text-white"
-                />
-              </Router>
-            </NFTProvider>
-          </WalletProvider>
-        </ApolloProvider>
-      </ErrorBoundary>
-    </ThemeProvider>
+                }>
+                  <Routes>
+                    <Route path="/" element={<Navigate to="/home" replace />} />
+                    <Route path="/home" element={<Home />} />
+                    <Route path="/create" element={<CreateNFT />} />
+                    <Route path="/gallery" element={<Gallery />} />
+                    <Route path="/history" element={<History />} />
+                    <Route path="/nft/:id" element={<NFTDetails />} />
+                    <Route path="*" element={<Navigate to="/home" replace />} />
+                  </Routes>
+                </Suspense>
+              </main>
+            </div>
+          </Router>
+        </NFTContext.Provider>
+      </WalletContext.Provider>
+    </ErrorBoundary>
   );
 };
 

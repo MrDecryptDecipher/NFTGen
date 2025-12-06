@@ -25,9 +25,10 @@ const nftSchema = new mongoose.Schema({
   description: { type: String, required: true },
   image: { type: String, required: true },
   owner: { type: String, required: true },
+  tokenId: { type: String }, // Optional tokenId to match with Activity model
   metadata: { type: metadataSchema, required: true },
-  status: { 
-    type: String, 
+  status: {
+    type: String,
     required: true,
     enum: ['created', 'minted', 'listed', 'sold', 'fractional'],
     default: 'created'
@@ -44,6 +45,17 @@ nftSchema.pre('save', function(next) {
   next();
 });
 
+// Performance indexes for faster querying
+nftSchema.index({ owner: 1 }); // Query NFTs by owner
+nftSchema.index({ tokenId: 1 }); // Query by tokenId
+nftSchema.index({ status: 1 }); // Query by status
+nftSchema.index({ createdAt: -1 }); // Sort by creation date (newest first)
+nftSchema.index({ updatedAt: -1 }); // Sort by update date
+nftSchema.index({ name: 'text', description: 'text' }); // Text search on name and description
+nftSchema.index({ owner: 1, status: 1 }); // Compound index for owner + status queries
+nftSchema.index({ status: 1, createdAt: -1 }); // Compound index for status + date queries
+nftSchema.index({ 'metadata.attributes.trait_type': 1, 'metadata.attributes.value': 1 }); // Query by attributes
+
 const NFT = mongoose.model('NFT', nftSchema);
 
-module.exports = NFT; 
+module.exports = NFT;

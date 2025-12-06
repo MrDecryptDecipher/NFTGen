@@ -1,0 +1,340 @@
+import { toast } from 'react-toastify';
+import type {
+  NijaWalletProvider,
+  WalletEventType,
+  WalletEvent,
+  WalletMessage,
+  TransactionParams,
+  TransactionResponse,
+  AccountsChangedCallback,
+  ChainChangedCallback,
+  DisconnectCallback,
+  WalletEventHandler
+} from './types/wallet';
+import * as ethers from 'ethers';
+
+// Constants for Nija Wallet
+const NIJA_WALLET_URL = 'http://3.111.22.56:6102';
+const CONNECTION_TIMEOUT = 15000; // 15 seconds timeout
+
+// API endpoints
+const ENDPOINTS = {
+  WALLET_ADDRESS: '/api/wallet/address',
+  CONNECT: '/api/v1/connect',
+  GET_ADDRESS: '/api/v1/wallet/address',
+  GET_CHAIN_ID: '/api/v1/network/chain',
+  SEND_TRANSACTION: '/api/v1/transaction/send',
+  HEALTH: '/api/v1/health',
+  DISCONNECT: '/api/v1/disconnect',
+  SESSION_VERIFY: '/api/v1/session/verify',
+  SESSION_STORE: '/api/v1/session/store',
+  GET_WALLET_DETAILS: '/api/v1/wallet/details'
+};
+
+// Ethereum method mapping to Nija Wallet methods
+const METHOD_MAPPING: { [key: string]: string } = {
+  'eth_accounts': 'nija_getAccounts',
+  'eth_requestAccounts': 'nija_requestAccounts',
+  'eth_chainId': 'nija_getChainId',
+  'eth_sendTransaction': 'nija_sendTransaction'
+};
+
+// Types
+interface NijaProvider {
+  isNijaWallet: boolean;
+  name: string;
+  userAgent: string;
+  request: (args: { method: string; params?: any[] }) => Promise<any>;
+  on: (event: string, handler: (...args: any[]) => void) => void;
+  removeListener: (event: string, handler: (...args: any[]) => void) => void;
+  _events?: Map<string, Set<Function>>;
+  _emit?: (event: string, ...args: any[]) => void;
+}
+
+declare global {
+  interface Window {
+    ethereum?: any;
+    nijaWalletProvider?: NijaProvider;
+    nijaHeartbeatInterval?: NodeJS.Timeout;
+  }
+}
+
+// Try multiple methods to detect the Nija Wallet provider
+export const isNijaWalletProvider = (): boolean => {
+  const providerFound = typeof window.ethereum !== 'undefined' && window.ethereum.isNijaWallet === true;
+  console.log(`isNijaWalletProvider: Provider check result: ${providerFound}`);
+  return providerFound;
+};
+
+// Get the Nija Wallet provider
+export const getNijaWalletProvider = () => {
+  console.log("getNijaWalletProvider: Checking for Nija Wallet provider...");
+
+  // Explicitly check window.ethereum and the flag
+  if (typeof window.ethereum !== 'undefined' && window.ethereum.isNijaWallet === true) {
+    console.log("getNijaWalletProvider: Found window.ethereum with isNijaWallet=true.");
+    return window.ethereum;
+  } 
+  // Add check for dedicated provider object if still used elsewhere, though likely redundant
+  // else if (window.nijaWalletProvider) { 
+  //   console.log("getNijaWalletProvider: Found window.nijaWalletProvider.");
+  //   return window.nijaWalletProvider;
+  // }
+  
+  console.log("getNijaWalletProvider: Nija provider (window.ethereum.isNijaWallet) not found or invalid.");
+  return null;
+};
+
+// Helper function to handle timeouts
+const withTimeout = async (promise: Promise<any>, ms: number, errorMessage: string) => {
+  let timeoutId: NodeJS.Timeout | undefined = undefined; // Initialize explicitly
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error(errorMessage));
+    }, ms);
+  });
+
+  try {
+    const result = await Promise.race([promise, timeoutPromise]);
+    // Check before clearing
+    if (timeoutId) {
+        clearTimeout(timeoutId);
+    }
+    return result;
+  } catch (error) {
+    // Check before clearing
+    if (timeoutId) {
+        clearTimeout(timeoutId);
+    }
+    throw error;
+  }
+};
+
+// Setup connection to Nija Wallet
+export const setupNijaWalletConnection = async () => {
+  console.log("setupNijaWalletConnection: Attempting connection...");
+  const provider = getNijaWalletProvider();
+  if (!provider) {
+    console.error('setupNijaWalletConnection: Nija Wallet provider not found.');
+    // Try to initiate the connection flow that leads to Nwallet redirect?
+    // For now, just throw. Nwallet window should open via user interaction.
+    throw new Error('Nija Wallet provider not detected. Please ensure Nija Wallet is active.');
+  }
+  
+  try {
+    console.log("setupNijaWalletConnection: Requesting accounts...");
+    // This request likely triggers the Nwallet UI and subsequent redirect with session
+    const accounts = await withTimeout( 
+        provider.request({ method: 'eth_requestAccounts' }), 
+        CONNECTION_TIMEOUT, 
+        'Connection request timed out (eth_requestAccounts)'
+    );
+    // If eth_requestAccounts itself returns session info (non-standard), handle here.
+    // Otherwise, assume the redirect mechanism handles session delivery.
+    if (!accounts || accounts.length === 0 || !ethers.utils.isAddress(accounts[0])) {
+      throw new Error('No valid accounts returned/approved in Nija Wallet.');
+    }
+    const address = accounts[0];
+    console.log(`setupNijaWalletConnection: Account approval received: ${address}`);
+    
+    // Chain ID might also be available immediately or after redirect
+    let chainId = 'unknown';
+    try {
+        chainId = await withTimeout(
+            provider.request({ method: 'eth_chainId' }), 
+            CONNECTION_TIMEOUT, 
+            'Chain ID request timed out (eth_chainId)'
+        );
+        console.log(`setupNijaWalletConnection: Chain ID received: ${chainId}`);
+    } catch (chainIdError) {
+        console.warn("setupNijaWalletConnection: Failed to get chain ID immediately after account request.", chainIdError);
+    }
+
+    // --- Session ID is NOT fetched here --- 
+    // It's expected to arrive via URL redirect after Nwallet approval.
+    // The WalletContext will handle reading it from the URL.
+    
+    // We don't store to localStorage here anymore, context handles it after redirect.
+    // localStorage.removeItem('nija_wallet_session'); // Ensure clean slate if flow restarts
+    
+    console.log("setupNijaWalletConnection: Account approval successful. Waiting for potential redirect/session info.");
+    
+    // Return what we have now, context will update fully after redirect/session parsing
+    return {
+      address: address,
+      chainId: chainId, // May be 'unknown' initially
+      provider 
+    };
+  } catch (error) {
+    console.error('Error during Nija Wallet connection setup (requesting accounts/chain):', error);
+    // localStorage.removeItem('nija_wallet_session');
+    throw error; 
+  }
+};
+
+// Verify connection: Read local session, verify against Nwallet backend via authenticated call
+export const verifyWalletConnection = async (): Promise<string | null> => {
+    console.log("verifyWalletConnection: Checking local session...");
+    let sessionData;
+    try {
+      const localSession = localStorage.getItem('nija_wallet_session');
+      if (!localSession) { 
+          console.log("verifyWalletConnection: No local session found.");
+          return null; 
+      }
+      sessionData = JSON.parse(localSession);
+      // Ensure all needed parts are present
+      if (!sessionData.address || !sessionData.sessionId || !sessionData.nonce || !sessionData.chainId) {
+          console.warn("verifyWalletConnection: Invalid/Incomplete local session data found.", sessionData);
+          localStorage.removeItem('nija_wallet_session');
+          return null;
+      }
+      console.log("verifyWalletConnection: Local session found:", sessionData);
+    } catch (error) {
+        console.error("verifyWalletConnection: Error parsing local session:", error);
+        localStorage.removeItem('nija_wallet_session');
+        return null;
+    }
+  
+    // Verify by attempting an authenticated API call to an endpoint using verifySession middleware
+    console.log(`verifyWalletConnection: Verifying session via authenticated call to ${NIJA_WALLET_URL}...`);
+    try {
+      // Use an endpoint known to be protected by verifySession, like GET_WALLET_DETAILS
+      const response = await fetch(`${NIJA_WALLET_URL}${ENDPOINTS.GET_WALLET_DETAILS}`, { 
+        method: 'GET', 
+        headers: {
+          // Correct Header Format found in api-server.js verifySession middleware
+          'Authorization': `Bearer ${sessionData.sessionId}:${sessionData.nonce}`, 
+          'Content-Type': 'application/json' 
+        }
+      });
+  
+      if (!response.ok) {
+          if (response.status === 401) { // 401 Unauthorized specifically means invalid session
+              console.log(`verifyWalletConnection: Session invalid (HTTP ${response.status}).`);
+          } else { // Other errors (network, server error)
+              console.warn(`verifyWalletConnection: Verification call failed (HTTP ${response.status}).`);
+          }
+          throw new Error(`Session verification failed (HTTP ${response.status})`);
+      }
+  
+      // If the call succeeds (200 OK), the session is valid.
+      // Optionally check if response body contains expected data
+      const data = await response.json(); 
+      if (data.address && data.address.toLowerCase() === sessionData.address.toLowerCase()) {
+            console.log(`verifyWalletConnection: Session verified successfully for address ${sessionData.address}`);
+            return sessionData.address;
+      } else {
+          console.warn(`verifyWalletConnection: Verification call succeeded, but wallet details mismatch? Data:`, data);
+          // Treat mismatch as verification failure?
+          throw new Error('Verification succeeded but response data mismatch.');
+      }
+  
+    } catch (error) {
+      console.error('verifyWalletConnection: Error during authenticated API call for verification:', error);
+      localStorage.removeItem('nija_wallet_session');
+      return null;
+    }
+};
+
+// Event handling
+export const setupWalletEventListeners = (provider: any) => {
+  if (!provider) return;
+  
+  const handleAccountsChanged = (accounts: string[]) => {
+    if (accounts.length === 0) {
+      localStorage.removeItem('nija_eth_address');
+      window.dispatchEvent(new CustomEvent('nijaWalletDisconnected'));
+    } else {
+      localStorage.setItem('nija_eth_address', accounts[0]);
+      window.dispatchEvent(new CustomEvent('nijaWalletAccountChanged', { detail: accounts[0] }));
+    }
+  };
+  
+  const handleChainChanged = (chainId: string) => {
+    localStorage.setItem('nija_chain_id', chainId);
+    window.dispatchEvent(new CustomEvent('nijaWalletChainChanged', { detail: chainId }));
+  };
+  
+  const handleDisconnect = () => {
+    localStorage.removeItem('nija_eth_address');
+    localStorage.removeItem('nija_chain_id');
+    window.dispatchEvent(new CustomEvent('nijaWalletDisconnected'));
+  };
+  
+  provider.on('accountsChanged', handleAccountsChanged);
+  provider.on('chainChanged', handleChainChanged);
+  provider.on('disconnect', handleDisconnect);
+  
+  return () => {
+    provider.removeListener('accountsChanged', handleAccountsChanged);
+    provider.removeListener('chainChanged', handleChainChanged);
+    provider.removeListener('disconnect', handleDisconnect);
+  };
+};
+
+// Get wallet address
+export const getWalletAddress = async () => {
+  try {
+    const provider = getNijaWalletProvider();
+    const accounts = await provider.request({ method: 'eth_accounts' });
+    return accounts?.[0] || null;
+  } catch (error) {
+    console.error('Error getting wallet address:', error);
+    return null;
+  }
+};
+
+// Get chain ID
+export const getChainId = async () => {
+  try {
+    const provider = getNijaWalletProvider();
+    const chainId = await provider.request({ method: 'eth_chainId' });
+    return chainId;
+  } catch (error) {
+    console.error('Error getting chain ID:', error);
+    return null;
+  }
+};
+
+// Send transaction
+export const sendTransaction = async (provider: ethers.providers.Web3Provider, params: any) => {
+  try {
+    const txHash = await provider.send('eth_sendTransaction', [params]);
+    return txHash;
+  } catch (error) {
+    console.error('Error sending transaction:', error);
+    throw error;
+  }
+};
+
+// Disconnect wallet
+export const disconnectWallet = async () => {
+  console.log("WalletContext: disconnect function called."); // Added log
+  try {
+    const provider = getNijaWalletProvider();
+    if (!provider) {
+        console.warn("disconnectWallet: Provider not found.");
+        // Still clear local storage even if provider isn't found
+    } else {
+        // Note: 'wallet_disconnect' is not standard EIP-1193. 
+        if (typeof provider.request === 'function') {
+            try {
+                 await provider.request({ method: 'wallet_disconnect' });
+            } catch (e) {
+                 console.warn("'wallet_disconnect' method failed or doesn't exist on provider:", e);
+            }
+        } else {
+            console.warn("'wallet_disconnect' method not available on provider.");
+        }
+    }
+  } catch (error) {
+      console.error('Error during disconnect attempt:', error);
+  } finally {
+      // Always clear session and notify regardless of provider/method success
+      localStorage.removeItem('nija_wallet_session');
+      window.dispatchEvent(new CustomEvent('nijaWalletDisconnected'));
+      console.log("Session cleared and disconnect event dispatched.");
+  }
+};
+

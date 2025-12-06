@@ -1,8 +1,8 @@
-import { configureChains, createConfig, Chain, Connector } from 'wagmi';
+import { configureChains, createConfig, Chain } from 'wagmi';
 import { mainnet, sepolia } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 import { InjectedConnector } from 'wagmi/connectors/injected';
-import { initializeNijaWalletConnection } from '../walletConnection';
+import { initializeIntegration } from '../nijaIntegration';
 
 export const projectId = '1ee409593129cebf8c29a7064ce8915e';
 
@@ -22,11 +22,11 @@ const nijaConnector = new InjectedConnector({
       if (typeof window === 'undefined') return undefined;
       
       // Initialize Nija Wallet connection
-      initializeNijaWalletConnection();
+      initializeIntegration();
       return window.ethereum;
     },
   },
-}) as Connector;
+});
 
 // Create wagmi config with only Nija Wallet connector
 export const config = createConfig({
@@ -85,5 +85,5 @@ export const NWALLET_URL = window.location.hostname === 'localhost'
   : 'http://3.111.22.56:3000';
 
 export const NWALLET_WS_URL = window.location.hostname === 'localhost'
-  ? 'ws://localhost:3001/ws'
-  : 'ws://3.111.22.56:3001/ws';
+  ? 'ws://localhost:6102'
+  : 'ws://3.111.22.56:6102';

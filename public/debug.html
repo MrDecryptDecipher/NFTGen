@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFTGen Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>NFTGen Debug Page</h1>
+        
+        <div id="status" class="status info">
+            Checking application status...
+        </div>
+        
+        <h2>Environment Information</h2>
+        <pre id="env-info"></pre>
+        
+        <h2>Resource Loading Test</h2>
+        <div id="resource-test"></div>
+        
+        <button id="test-api">Test API Connection</button>
+        <div id="api-result" class="status" style="display: none;"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusDiv = document.getElementById('status');
+            const envInfoDiv = document.getElementById('env-info');
+            const resourceTestDiv = document.getElementById('resource-test');
+            const testApiButton = document.getElementById('test-api');
+            const apiResultDiv = document.getElementById('api-result');
+            
+            // Display environment info
+            const envInfo = {
+                userAgent: navigator.userAgent,
+                url: window.location.href,
+                protocol: window.location.protocol,
+                host: window.location.host,
+                pathname: window.location.pathname,
+                search: window.location.search,
+                hash: window.location.hash,
+                origin: window.location.origin
+            };
+            
+            envInfoDiv.textContent = JSON.stringify(envInfo, null, 2);
+            
+            // Test resource loading
+            function testResourceLoading() {
+                const resources = [
+                    { type: 'JavaScript', url: '/src/main.tsx' },
+                    { type: 'CSS', url: '/src/index.css' },
+                    { type: 'Image', url: '/vite.svg' }
+                ];
+                
+                let html = '<ul>';
+                
+                resources.forEach(resource => {
+                    const testElement = document.createElement('div');
+                    testElement.id = `test-${resource.type.toLowerCase()}`;
+                    testElement.innerHTML = `Testing ${resource.type} (${resource.url}): <span class="loading">Loading...</span>`;
+                    resourceTestDiv.appendChild(testElement);
+                    
+                    fetch(resource.url)
+                        .then(response => {
+                            const status = response.ok ? 'success' : 'error';
+                            const message = response.ok ? 'Loaded successfully' : `Failed (${response.status} ${response.statusText})`;
+                            testElement.innerHTML = `Testing ${resource.type} (${resource.url}): <span class="${status}">${message}</span>`;
+                        })
+                        .catch(error => {
+                            testElement.innerHTML = `Testing ${resource.type} (${resource.url}): <span class="error">Error: ${error.message}</span>`;
+                        });
+                });
+                
+                html += '</ul>';
+            }
+            
+            testResourceLoading();
+            
+            // Test API connection
+            testApiButton.addEventListener('click', function() {
+                apiResultDiv.style.display = 'block';
+                apiResultDiv.className = 'status info';
+                apiResultDiv.textContent = 'Testing API connection...';
+                
+                fetch('/api/health')
+                    .then(response => response.json())
+                    .then(data => {
+                        apiResultDiv.className = 'status success';
+                        apiResultDiv.textContent = `API connection successful: ${JSON.stringify(data)}`;
+                    })
+                    .catch(error => {
+                        apiResultDiv.className = 'status error';
+                        apiResultDiv.textContent = `API connection failed: ${error.message}`;
+                    });
+            });
+            
+            // Overall status check
+            try {
+                if (window.location.protocol === 'http:') {
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = 'Application is running on HTTP. Basic connectivity is working.';
+                } else {
+                    statusDiv.className = 'status info';
+                    statusDiv.textContent = `Application is running on ${window.location.protocol}. This is unusual for development.`;
+                }
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `Error checking status: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>

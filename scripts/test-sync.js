@@ -23,31 +23,19 @@ const generateRecentTimestamp = () => {
   return now - (hoursAgo * 60 * 60 * 1000);
 };
 
-// Mock IPFS URL for testing
-const generateMockIPFSUrl = (hash) => {
-  return `ipfs://${hash}`;
-};
+// MOCK DATA GENERATION DISABLED
+// All NFT data must come from real Alchemy API sources only
 
-// Generate a mock NFT image and metadata
+/**
+ * Mock NFT generation has been disabled to enforce Alchemy-only data usage.
+ * Use real NFT data from blockchain via Alchemy API instead.
+ */
 const generateMockNFT = () => {
-  const names = ['Cosmic Explorer', 'Digital Dream', 'Ethereal Entity', 'Virtual Voyager', 'Quantum Creation'];
-  const name = names[Math.floor(Math.random() * names.length)];
-  
-  const imageHash = 'Qm' + Array.from({length: 44}, () => 
-    Math.floor(Math.random() * 16).toString(16)
-  ).join('');
-  
-  const metadataHash = 'Qm' + Array.from({length: 44}, () => 
-    Math.floor(Math.random() * 16).toString(16)
-  ).join('');
-  
-  return {
-    name,
-    imageUrl: generateMockIPFSUrl(imageHash),
-    metadataUrl: generateMockIPFSUrl(metadataHash),
-    fractions: Math.random() > 0.7 ? Math.floor(Math.random() * 10) + 2 : 1, // 30% chance of being fractionalized
-    royaltyFee: Math.floor(Math.random() * 10) // 0-10% royalty fee
-  };
+  throw new Error(
+    'Mock NFT generation has been disabled. ' +
+    'Use real NFT data from Alchemy API only. ' +
+    'NFTGen now operates as a read-only NFT viewer using blockchain data.'
+  );
 };
 
 // Create a mock NFT activity

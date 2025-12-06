@@ -1,9 +1,9 @@
 import type { NFT, NFTUploadFormData, NFTAttribute, NFTStatus } from '../types';
 import { id as generateId } from 'ethers';
 import { toast } from 'react-toastify';
+import { web3StorageService } from './web3Storage.service';
 
-const IPFS_GATEWAY = 'https://ipfs.io/ipfs';
-const NFT_STORAGE_KEY = process.env.NEXT_PUBLIC_NFT_STORAGE_KEY;
+const IPFS_GATEWAY = 'https://w3s.link/ipfs';
 
 interface NFTMetadata {
   name: string;
@@ -35,20 +35,21 @@ export class NFTService {
 
   async uploadNFT(data: NFTUploadFormData, onProgress?: (progress: number) => void): Promise<NFT> {
     try {
-      if (!NFT_STORAGE_KEY) {
-        throw new Error('NFT Storage key is not configured');
+      // Ensure Web3.Storage is initialized
+      if (!web3StorageService.isSpaceReady()) {
+        await web3StorageService.initialize();
       }
 
-      // Upload image to IPFS
-      const imageHash = await this.uploadFileToIPFS(data.file, (progress) => {
-        onProgress?.(progress * 0.6); // Image upload is 60% of total progress
+      // Upload image to IPFS via Web3.Storage
+      const imageResult = await web3StorageService.uploadFile(data.file, (progress) => {
+        onProgress?.(progress.progress * 0.6); // Image upload is 60% of total progress
       });
 
       // Prepare metadata
       const metadata: NFTMetadata = {
         name: data.name,
         description: data.description,
-        image: `${IPFS_GATEWAY}/${imageHash}`,
+        image: imageResult.url, // Use IPFS URL from Web3.Storage
         attributes: data.attributes,
         properties: {
           fractions: {
@@ -62,9 +63,9 @@ export class NFTService {
         }
       };
 
-      // Upload metadata to IPFS
-      const metadataHash = await this.uploadJSONToIPFS(metadata, (progress) => {
-        onProgress?.(60 + progress * 0.4); // Metadata upload is 40% of total progress
+      // Upload metadata to IPFS via Web3.Storage
+      const metadataResult = await web3StorageService.uploadMetadata(metadata, (progress) => {
+        onProgress?.(60 + progress.progress * 0.4); // Metadata upload is 40% of total progress
       });
 
       const nftId = generateId(`${Date.now()}`);
@@ -75,8 +76,8 @@ export class NFTService {
         id: nftId,
         name: data.name,
         description: data.description,
-        image: `${IPFS_GATEWAY}/${imageHash}`,
-        metadata: `${IPFS_GATEWAY}/${metadataHash}`,
+        image: imageResult.url,
+        metadata: metadataResult.url,
         owner: data.royaltyBeneficiary,
         fractions: {
           id: generateId(`${nftId}-fractions`),
@@ -107,25 +108,16 @@ export class NFTService {
     onProgress?: (progress: number) => void
   ): Promise<string> {
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('https://api.nft.storage/upload', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${NFT_STORAGE_KEY}`,
-        },
-        body: formData
+      // Use Web3.Storage service for file uploads
+      const result = await web3StorageService.uploadFile(file, (progress) => {
+        onProgress?.(progress.progress);
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to upload file to IPFS');
-      }
-
-      const data = await response.json();
-      return data.value.cid;
+      // Extract CID from IPFS URL
+      const cid = result.cid;
+      return cid;
     } catch (error) {
-      console.error('Error uploading to IPFS:', error);
+      console.error('Error uploading to Web3.Storage IPFS:', error);
       throw new Error('Failed to upload file to IPFS');
     }
   }
@@ -135,12 +127,16 @@ export class NFTService {
     onProgress?: (progress: number) => void
   ): Promise<string> {
     try {
-      const blob = new Blob([JSON.stringify(json)], { type: 'application/json' });
-      const file = new File([blob], 'metadata.json', { type: 'application/json' });
+      // Use Web3.Storage service for metadata uploads
+      const result = await web3StorageService.uploadMetadata(json, (progress) => {
+        onProgress?.(progress.progress);
+      });
 
-      return await this.uploadFileToIPFS(file, onProgress);
+      // Extract CID from IPFS URL
+      const cid = result.cid;
+      return cid;
     } catch (error) {
-      console.error('Error uploading JSON to IPFS:', error);
+      console.error('Error uploading JSON to Web3.Storage IPFS:', error);
       throw new Error('Failed to upload metadata to IPFS');
     }
   }

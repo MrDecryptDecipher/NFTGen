@@ -4,7 +4,30 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
-    <title>Vite + React + TS</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://3.111.22.56:* http://*.3.111.22.56.nip.io https://*.alchemyapi.io https://*.g.alchemy.com https://eth-sepolia.g.alchemy.com https://eth-mainnet.g.alchemy.com https://*.infura.io https://ipfs.infura.io https://ipfs.alchemy.com https://api.nft.storage http://localhost:* ws://localhost:* ws://3.111.22.56:* ws://*.3.111.22.56.nip.io wss://3.111.22.56:* wss://*.3.111.22.56.nip.io https://ipfs.io https://dweb.link https://*.nft.storage https://*.pinata.cloud https://gateway.pinata.cloud https://api-sepolia.etherscan.io https://api.etherscan.io https://*.etherscan.io data:; img-src 'self' data: https: http: ipfs:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; frame-src 'self' http://3.111.22.56:* http://*.3.111.22.56.nip.io https://*.nft.storage;" />
+    <title>NFTGen - Fractional NFT Platform</title>
+    <style>
+      /* Add some fallback styles for when images fail to load */
+      img.nft-image {
+        background-color: #333;
+        min-height: 250px;
+        min-width: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+      img.nft-image::after {
+        content: "Image unavailable";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #888;
+        font-family: system-ui, sans-serif;
+        font-size: 14px;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

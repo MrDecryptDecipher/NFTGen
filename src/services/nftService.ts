@@ -1,527 +1,498 @@
-import { ActivitySync } from '../activitySync';
-import { sendTransaction } from '../walletConnection';
-import { ethers } from 'ethers';
-import type { NFT } from '../types';
-import { API_BASE_URL } from '../config';
+import { NFTMetadata as Web3NFTMetadata } from './web3Storage';
+import { web3StorageService } from './web3Storage.service';
+import { etherscanService } from './etherscanService';
+import { toast } from 'react-toastify';
+import { authUtils } from '../hooks/useAuth';
 
-// NFT Fractionalization Config (internal type)
-interface NFTFractionalizationConfig {
-  supply: number;
-  pricePerFraction: string;
-  minimumPurchase: number;
-}
-
-// Extended fallback ports for API endpoints
-const API_PORTS = [5175, 5176, 5177, 5178, 5179, 5180, 5181, 5182, 5183, 5184];
-const PORT_CHECK_TIMEOUT = 3000;
-const PORT_CHECK_CACHE_DURATION = 180000;
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000;
-
-// Enhanced logging
-const log = {
-  info: (message: string, data?: any) => {
-    console.log(`[NFTService] ℹ️ ${message}`, data || '');
-  },
-  warn: (message: string, error?: any) => {
-    console.warn(`[NFTService] ⚠️ ${message}`, error || '');
-  },
-  error: (message: string, error?: any) => {
-    console.error(`[NFTService] ❌ ${message}`, error || '');
-  },
-  success: (message: string, data?: any) => {
-    console.log(`[NFTService] ✅ ${message}`, data || '');
-  }
-};
-
-// Service metrics
-interface ServiceMetrics {
-  successfulUploads: number;
-  failedUploads: number;
-  averageUploadTime: number;
-  totalTransactions: number;
-  confirmedTransactions: number;
-  failedTransactions: number;
-  currentPort: number | null;
-  lastError: string | null;
-  uptime: number;
-}
-
-interface PortMetrics {
-  available: boolean;
-  lastCheckTime: number;
-  responseTime: number;
-  failureCount: number;
-  successCount: number;
-}
-
-const portMetrics = new Map<number, PortMetrics>();
-
-const checkPortAvailability = async (port: number): Promise<boolean> => {
-  const now = Date.now();
-  const metrics = portMetrics.get(port) || {
-    available: false,
-    lastCheckTime: 0,
-    responseTime: 0,
-    failureCount: 0,
-    successCount: 0
-  };
-
-  if (now - metrics.lastCheckTime < PORT_CHECK_CACHE_DURATION) {
-    log.info(`Using cached availability for port ${port}: ${metrics.available}`);
-    return metrics.available;
-  }
-
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), PORT_CHECK_TIMEOUT);
-
-    const startTime = performance.now();
-    const baseUrl = import.meta.env.VITE_API_BASE_URL?.split(':').slice(0, 2).join(':') || 'http://13.126.230.108';
-    const response = await fetch(`${baseUrl}:${port}/health`, {
-      signal: controller.signal,
-      headers: {
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      }
-    });
-
-    clearTimeout(timeoutId);
-    const responseTime = performance.now() - startTime;
-    
-    const isAvailable = response.ok;
-    metrics.available = isAvailable;
-    metrics.lastCheckTime = now;
-    metrics.responseTime = responseTime;
-    
-    if (isAvailable) {
-      metrics.successCount++;
-      log.success(`Port ${port} is available (${responseTime.toFixed(2)}ms)`);
-    } else {
-      metrics.failureCount++;
-      log.warn(`Port ${port} health check failed with status ${response.status}`);
-    }
-
-    portMetrics.set(port, metrics);
-    return isAvailable;
-  } catch (error) {
-    metrics.failureCount++;
-    metrics.available = false;
-    metrics.lastCheckTime = now;
-    portMetrics.set(port, metrics);
-    
-    log.warn(`Port ${port} check failed`, error);
-    return false;
-  }
-};
-
-const findAvailablePort = async (): Promise<number | null> => {
-  // Sort ports by success rate and response time
-  const sortedPorts = API_PORTS.sort((a, b) => {
-    const metricsA = portMetrics.get(a);
-    const metricsB = portMetrics.get(b);
-    
-    if (!metricsA && !metricsB) return 0;
-    if (!metricsA) return 1;
-    if (!metricsB) return -1;
-
-    const successRateA = metricsA.successCount / (metricsA.successCount + metricsA.failureCount) || 0;
-    const successRateB = metricsB.successCount / (metricsB.successCount + metricsB.failureCount) || 0;
-
-    if (successRateA !== successRateB) return successRateB - successRateA;
-    return metricsA.responseTime - metricsB.responseTime;
-  });
-
-  for (const port of sortedPorts) {
-    if (await checkPortAvailability(port)) {
-      return port;
-    }
-  }
-  return null;
-};
-
-const getApiUrl = (port: number): string => {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL?.split(':').slice(0, 2).join(':') || 'http://13.126.230.108';
-  return `${baseUrl}:${port}`;
-};
-
-interface NFTMetadata {
+export interface CreateNFTParams {
   name: string;
   description: string;
-  image: string;
+  imageFile: File;
   attributes?: Array<{
     trait_type: string;
-    value: string | number;
+    value: string;
   }>;
+  recipientAddress: string;
+  amount?: number;
 }
 
-interface TransactionStatus {
-  status: 'pending' | 'confirmed' | 'failed';
-  confirmations: number;
+export interface CreateNFTResult {
+  success: boolean;
+  tokenId?: string;
+  transactionHash?: string;
+  imageUrl?: string;
+  metadataUrl?: string;
   error?: string;
+  // Real blockchain data
+  contractAddress?: string;
+  blockNumber?: number;
+  gasUsed?: string;
+  totalCost?: string;
+  openseaUrl?: string;
+  etherscanUrl?: string;
+  confirmations?: number;
 }
 
-// This is a mock ABI for demonstration. Replace with your actual contract ABI
-const NFT_FRACTIONALIZATION_ABI = [
-  'function fractionalize(uint256 tokenId, uint256 totalSupply, uint256 pricePerFraction, uint256 minimumPurchase) external',
-  'function buyFractions(uint256 tokenId, uint256 amount) external payable',
-  'function getFractionDetails(uint256 tokenId) external view returns (uint256 supply, uint256 available, uint256 pricePerFraction, uint256 minimumPurchase)'
-];
+export interface ProgressCallback {
+  (stage: string, progress: number, message: string): void;
+}
 
-// Replace with your actual contract address
-const NFT_FRACTIONALIZATION_ADDRESS = '0x...';
+/**
+ * Complete NFT creation workflow
+ */
+export async function createNFT(
+  params: CreateNFTParams,
+  progressCallback?: ProgressCallback
+): Promise<CreateNFTResult> {
+  try {
+    console.log('Starting NFT creation process...', params);
 
-export class NFTService {
-  private static instance: NFTService | null = null;
-  private readonly baseUrl: string;
-  private activitySync: ActivitySync;
-  private transactionStatuses: Map<string, TransactionStatus>;
-  private currentPort: number | null = null;
-  private readonly requiredConfirmations = 3;
-  private startTime: number;
-  private metrics: ServiceMetrics;
-  private provider: ethers.JsonRpcProvider;
-  private signer: ethers.JsonRpcSigner | null;
-  private contract: ethers.Contract | null;
+    // Stage 1: Validate inputs
+    progressCallback?.('validation', 5, 'Validating inputs...');
 
-  private constructor() {
-    this.startTime = Date.now();
-    this.transactionStatuses = new Map();
-    this.metrics = {
-      successfulUploads: 0,
-      failedUploads: 0,
-      averageUploadTime: 0,
-      totalTransactions: 0,
-      confirmedTransactions: 0,
-      failedTransactions: 0,
-      currentPort: null,
-      lastError: null,
-      uptime: 0
+    if (!params.name.trim()) {
+      throw new Error('NFT name is required');
+    }
+
+    if (!params.imageFile) {
+      throw new Error('Image file is required');
+    }
+
+    if (!params.recipientAddress) {
+      throw new Error('Recipient address is required');
+    }
+
+    // Stage 2: Upload to IPFS
+    progressCallback?.('upload', 20, 'Uploading image and metadata to IPFS...');
+
+    const metadata: Web3NFTMetadata = {
+      name: params.name,
+      description: params.description,
+      image: '', // Will be set by the upload service
+      attributes: params.attributes,
+      external_url: `${window.location.origin}/nft/` // Will be updated with token ID later
     };
 
-    this.activitySync = new ActivitySync({
-      onTransactionUpdate: this.handleTransactionUpdate.bind(this),
-      onPortChange: this.handlePortChange.bind(this),
-      onError: (error) => {
-        console.error('WebSocket error:', error);
-        this.metrics.lastError = error.message;
+    // Use real Web3.Storage service instead of mock
+    console.log('🌐 Using real Web3.Storage service for IPFS upload...');
+
+    // Initialize Web3.Storage service if not already done
+    try {
+      await web3StorageService.initialize();
+    } catch (initError) {
+      console.warn('Web3Storage initialization failed, continuing anyway:', initError);
+    }
+
+    // Upload using real Web3.Storage service
+    const uploadResult = await web3StorageService.uploadNFTMetadata(
+      params.imageFile,
+      metadata,
+      (progress) => {
+        const percentage = Math.round(20 + (progress.progress * 0.3)); // 20-50% range
+        progressCallback?.('upload', percentage, progress.message);
+      }
+    );
+
+    progressCallback?.('upload', 50, 'IPFS upload completed successfully');
+
+    console.log('IPFS upload result:', uploadResult);
+
+    // Stage 3: REAL Blockchain Minting on Sepolia Testnet
+    progressCallback?.('minting', 70, 'Minting NFT on REAL Ethereum Sepolia blockchain...');
+
+    // Get wallet address from centralized authentication service
+    let recipientAddress = params.recipientAddress;
+    let sessionId: string | null = null;
+    let userCredentials: any = null;
+
+    // Use centralized authentication service
+    try {
+      // Get current session from auth service
+      const session = authUtils.getSession();
+
+      if (session && session.isValid) {
+        sessionId = session.sessionId;
+        recipientAddress = session.address; // Use address from authenticated session
+
+        console.log('🔐 NFTService: Using authenticated session for address:', recipientAddress);
+        console.log('🔐 NFTService: Session ID:', sessionId?.substring(0, 16) + '...');
+
+        // Get user credentials from MongoDB via API
+        try {
+          userCredentials = await authUtils.getUserCredentials();
+          console.log('✅ Retrieved user credentials from authenticated session');
+        } catch (credError) {
+          console.warn('⚠️ Error fetching user credentials:', credError);
+        }
+      } else {
+        console.warn('⚠️ No valid authentication session found');
+        throw new Error('Please authenticate with Nwallet first');
+      }
+    } catch (authError) {
+      console.error('❌ Authentication error:', authError);
+      throw new Error('Authentication failed. Please login to Nwallet first.');
+    }
+
+    // Use default test address if no wallet connected
+    if (!recipientAddress) {
+      recipientAddress = '0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1';
+      console.log('Using default test address for minting');
+    }
+
+    console.log('🚀 Starting REAL blockchain minting...');
+
+    // Prepare JSON data for real blockchain minting API
+    const mintingData = {
+      name: params.name,
+      description: params.description,
+      recipient: recipientAddress,
+      imageUrl: uploadResult.imageUrl,
+      metadataUrl: uploadResult.metadataUrl,
+      imageCID: uploadResult.imageCID,
+      metadataCID: uploadResult.metadataCID,
+      external_url: metadata.external_url || `https://nftgen.app/nft/${Date.now()}`,
+      attributes: params.attributes || [],
+      sessionId: sessionId, // Include session ID for MongoDB user lookup
+      userPrivateKey: userCredentials?.ethPrivateKey // Include user's private key if available
+    };
+
+    // Call REAL blockchain minting API
+    const apiUrl = `${import.meta.env.VITE_API_URL || 'http://3.111.22.56:7102'}/api/mint/mint`;
+
+    console.log('📡 Sending real blockchain minting request to:', apiUrl);
+    console.log('📋 Minting data:', mintingData);
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
       },
+      body: JSON.stringify(mintingData)
     });
 
-    // Start metrics update interval
-    setInterval(() => this.updateMetrics(), 60000);
-
-    this.baseUrl = API_BASE_URL;
-    this.provider = new ethers.JsonRpcProvider(API_BASE_URL);
-    this.signer = null;
-    this.contract = null;
-
-    // Initialize signer and contract
-    this.initializeWallet();
-  }
-
-  private async initializeWallet() {
-    try {
-      this.signer = await this.provider.getSigner();
-      this.contract = new ethers.Contract(
-        NFT_FRACTIONALIZATION_ADDRESS,
-        NFT_FRACTIONALIZATION_ABI,
-        this.signer
-      );
-    } catch (error) {
-      console.error('Error initializing wallet:', error);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.details || `HTTP ${response.status}: ${response.statusText}`);
     }
-  }
 
-  public static async create(): Promise<NFTService> {
-    if (!NFTService.instance) {
-      NFTService.instance = new NFTService();
-      await NFTService.instance.initializeWallet();
+    const mintResult = await response.json();
+
+    if (!mintResult.success) {
+      throw new Error(mintResult.error || 'REAL blockchain minting failed');
     }
-    return NFTService.instance;
-  }
 
-  private updateMetrics() {
-    this.metrics.uptime = Date.now() - this.startTime;
-    window.dispatchEvent(new CustomEvent('nft-service-metrics', {
-      detail: { ...this.metrics }
-    }));
-  }
+    console.log('🎉 REAL blockchain minting successful!');
+    console.log('🎯 Token ID:', mintResult.tokenId);
+    console.log('📡 Transaction Hash:', mintResult.transactionHash);
+    console.log('🔗 Contract Address:', mintResult.contractAddress);
+    console.log('🔗 OpenSea URL:', mintResult.openseaUrl);
+    console.log('🔗 Etherscan URL:', mintResult.etherscanUrl);
+    console.log('💸 Total Cost:', mintResult.totalCost, 'ETH');
 
-  private handleTransactionUpdate = (transaction: any) => {
-    const { hash: txHash, status } = transaction;
-    if (!txHash) return;
+    // Monitor transaction confirmation via Etherscan
+    if (mintResult.transactionHash) {
+      progressCallback?.('verification', 95, 'Monitoring transaction confirmation...');
 
-    const currentStatus = this.transactionStatuses.get(txHash) || {
-      status: 'pending',
-      confirmations: 0
+      try {
+        const txStatus = await etherscanService.monitorTransaction(
+          mintResult.transactionHash,
+          (status) => {
+            progressCallback?.('verification', 95 + (status.confirmations * 1),
+              `Transaction confirmed: ${status.confirmations} confirmations`);
+          },
+          60000 // 1 minute timeout
+        );
+
+        console.log('✅ Transaction monitoring completed:', txStatus);
+      } catch (monitorError) {
+        console.warn('⚠️ Transaction monitoring failed:', monitorError);
+        // Don't fail the entire process if monitoring fails
+      }
+    }
+
+    progressCallback?.('complete', 100, 'REAL NFT minted successfully on blockchain!');
+
+    const result: CreateNFTResult = {
+      success: true,
+      tokenId: mintResult.tokenId,
+      transactionHash: mintResult.transactionHash,
+      imageUrl: mintResult.imageIPFS || uploadResult.imageUrl,
+      metadataUrl: mintResult.metadataIPFS || uploadResult.metadataUrl,
+      // Additional real blockchain data
+      contractAddress: mintResult.contractAddress,
+      blockNumber: mintResult.blockNumber,
+      gasUsed: mintResult.gasUsed,
+      totalCost: mintResult.totalCost,
+      openseaUrl: mintResult.openseaUrl,
+      etherscanUrl: mintResult.etherscanUrl,
+      confirmations: mintResult.confirmations
     };
 
-    switch (status) {
-      case 'confirmed':
-        currentStatus.confirmations++;
-        if (currentStatus.confirmations >= this.requiredConfirmations) {
-          currentStatus.status = 'confirmed';
-          this.metrics.confirmedTransactions++;
-        }
-        break;
-      case 'failed':
-        currentStatus.status = 'failed';
-        this.metrics.failedTransactions++;
-        break;
-      default:
-        currentStatus.status = 'pending';
-    }
+    console.log('NFT creation completed:', result);
+    return result;
 
-    this.transactionStatuses.set(txHash, currentStatus);
-    this.notifyStatusChange(txHash, currentStatus);
-  };
+  } catch (error) {
+    console.error('Error creating NFT:', error);
 
-  private handlePortChange = (port: number) => {
-    this.currentPort = port;
-    this.metrics.currentPort = port;
-    localStorage.setItem('nft_service_port', port.toString());
-    log.info(`Port changed to ${port}`);
-  };
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    progressCallback?.('error', 0, `Error: ${errorMessage}`);
 
-  private notifyStatusChange(txHash: string, status: TransactionStatus) {
-    window.dispatchEvent(new CustomEvent('nft-transaction-update', {
-      detail: { txHash, status }
-    }));
+    return {
+      success: false,
+      error: errorMessage
+    };
   }
+}
 
-  public async createNFT(
-    metadata: NFTMetadata,
-    onProgress?: (status: string) => void
-  ): Promise<string> {
-    let lastError: Error | null = null;
-    
-    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-      try {
-        onProgress?.(`Attempt ${attempt}/${MAX_RETRIES}: Checking service availability...`);
-        
-        const walletInfo = localStorage.getItem('nija_wallet_connection');
-        if (!walletInfo) {
-          throw new Error('Please connect your Nija Wallet first');
-        }
-        
-        const { address } = JSON.parse(walletInfo);
+/**
+ * Simplified NFT creation for quick testing
+ */
+export async function createTestNFT(
+  name: string,
+  description: string,
+  imageFile: File,
+  recipientAddress: string
+): Promise<CreateNFTResult> {
+  return createNFT({
+    name,
+    description,
+    imageFile,
+    recipientAddress,
+    amount: 1,
+    attributes: [
+      { trait_type: 'Creator', value: 'NFTGen' },
+      { trait_type: 'Platform', value: 'NFTGen' },
+      { trait_type: 'Network', value: 'Ethereum Sepolia' }
+    ]
+  });
+}
 
-        if (!this.currentPort) {
-          const port = await findAvailablePort();
-          if (!port) {
-            throw new Error('No available service ports found');
-          }
-          this.handlePortChange(port);
-        }
+/**
+ * Create NFT with progress updates and toast notifications
+ */
+export async function createNFTWithToasts(
+  params: CreateNFTParams
+): Promise<CreateNFTResult> {
+  let toastId: any;
 
-        onProgress?.('Uploading metadata to IPFS...');
-        const startTime = performance.now();
+  const progressCallback: ProgressCallback = (stage, progress, message) => {
+    console.log(`[${stage}] ${progress}% - ${message}`);
 
-        const metadataUrl = await this.uploadToIPFS(metadata);
-        const uploadTime = performance.now() - startTime;
-        
-        this.metrics.successfulUploads++;
-        this.metrics.averageUploadTime = (this.metrics.averageUploadTime * (this.metrics.successfulUploads - 1) + uploadTime) / this.metrics.successfulUploads;
-        
-        onProgress?.('Metadata uploaded, initiating transaction...');
-
-        const transaction = {
-          from: address,
-          to: import.meta.env.VITE_NFT_CONTRACT_ADDRESS,
-          data: this.encodeNFTMintData(metadataUrl),
-          value: '0x0'
-        };
-
-        const txHash = await sendTransaction(transaction);
-        this.metrics.totalTransactions++;
-        onProgress?.('Transaction submitted...');
-
-        this.transactionStatuses.set(txHash, {
-          status: 'pending',
-          confirmations: 0
-        });
-
-        await this.activitySync.connect();
-        log.success('NFT creation initiated', { txHash });
-
-        return txHash;
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error('Unknown error');
-        log.error(`NFT creation attempt ${attempt} failed:`, error);
-        this.metrics.failedUploads++;
-        this.metrics.lastError = lastError.message;
-        
-        if (attempt < MAX_RETRIES) {
-          onProgress?.(`Retrying in ${RETRY_DELAY/1000}s...`);
-          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * attempt));
-        }
-      }
-    }
-
-    portMetrics.clear();
-    this.currentPort = null;
-    throw lastError || new Error('Failed to create NFT after all retries');
-  }
-
-  private async uploadToIPFS(metadata: NFTMetadata): Promise<string> {
-    let lastError: Error | null = null;
-    
-    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-      try {
-        const sessionToken = localStorage.getItem('nija_wallet_session');
-        if (!sessionToken) {
-          throw new Error('No active wallet session');
-        }
-
-        if (!this.currentPort) {
-          throw new Error('No active service port');
-        }
-
-        const apiUrl = getApiUrl(this.currentPort);
-        log.info(`Uploading to IPFS via ${apiUrl} (attempt ${attempt}/${MAX_RETRIES})`);
-
-        const response = await fetch(`${apiUrl}/api/ipfs/upload`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${sessionToken}`,
-            'X-Retry-Attempt': attempt.toString()
-          },
-          body: JSON.stringify(metadata)
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.message || 'Failed to upload to IPFS');
-        }
-
-        const { url } = await response.json();
-        log.success('IPFS upload successful', { url });
-        return url;
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error('Unknown error');
-        log.error(`IPFS upload attempt ${attempt} failed:`, error);
-        
-        if (attempt < MAX_RETRIES) {
-          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * attempt));
-        }
-      }
-    }
-
-    portMetrics.clear();
-    this.currentPort = null;
-    throw lastError || new Error('Failed to upload to IPFS after all retries');
-  }
-
-  private encodeNFTMintData(metadataUrl: string): string {
-    const mintMethodId = '0x731133e5'; // mint(string)
-    const encodedUrl = Buffer.from(metadataUrl).toString('hex');
-    return `${mintMethodId}${encodedUrl}`;
-  }
-
-  public getTransactionStatus(txHash: string): TransactionStatus | undefined {
-    return this.transactionStatuses.get(txHash);
-  }
-
-  public async waitForConfirmation(
-    txHash: string,
-    timeout = 300000 // 5 minutes
-  ): Promise<TransactionStatus> {
-    return new Promise((resolve, reject) => {
-      const startTime = Date.now();
-      let timeoutId: NodeJS.Timeout;
-      
-      const checkStatus = () => {
-        const status = this.getTransactionStatus(txHash);
-        
-        if (status?.status === 'confirmed') {
-          clearTimeout(timeoutId);
-          resolve(status);
-          return;
-        }
-        
-        if (status?.status === 'failed') {
-          clearTimeout(timeoutId);
-          reject(new Error(status.error || 'Transaction failed'));
-          return;
-        }
-        
-        if (Date.now() - startTime > timeout) {
-          clearTimeout(timeoutId);
-          reject(new Error('Transaction confirmation timeout'));
-          return;
-        }
-        
-        timeoutId = setTimeout(checkStatus, 1000);
-      };
-      
-      checkStatus();
-    });
-  }
-
-  public getMetrics(): ServiceMetrics {
-    this.updateMetrics();
-    return { ...this.metrics };
-  }
-
-  async fractionalize(nftId: string, config: NFTFractionalizationConfig): Promise<void> {
-    try {
-      if (!this.contract || !this.signer) {
-        throw new Error('Wallet not initialized');
-      }
-      const tx = await this.contract.fractionalize(
-        nftId,
-        config.supply,
-        ethers.parseEther(config.pricePerFraction),
-        config.minimumPurchase
-      );
-      await tx.wait();
-    } catch (error) {
-      console.error('Error fractionalizing NFT:', error);
-      throw error;
-    }
-  }
-
-  async buyFractions(
-    nftId: string,
-    amount: number,
-    pricePerFraction: string
-  ): Promise<boolean> {
-    try {
-      if (!this.contract || !this.signer) {
-        throw new Error('Wallet not initialized');
-      }
-      const totalPrice = ethers.parseEther(pricePerFraction);
-      const value = totalPrice * BigInt(amount);
-      const tx = await this.contract.buyFractions(nftId, amount, {
-        value
+    if (toastId) {
+      toast.update(toastId, {
+        render: message,
+        progress: progress / 100,
+        type: stage === 'error' ? 'error' : 'info'
       });
-      await tx.wait();
-      return true;
-    } catch (error) {
-      console.error('Error buying fractions:', error);
-      throw error;
+    } else {
+      toastId = toast.info(message, {
+        progress: progress / 100,
+        autoClose: false,
+        closeButton: false
+      });
+    }
+  };
+
+  try {
+    const result = await createNFT(params, progressCallback);
+
+    if (result.success) {
+      toast.update(toastId, {
+        render: `NFT created successfully! Token ID: ${result.tokenId}`,
+        type: 'success',
+        autoClose: 5000,
+        closeButton: true,
+        progress: undefined
+      });
+    } else {
+      toast.update(toastId, {
+        render: `NFT creation failed: ${result.error}`,
+        type: 'error',
+        autoClose: 5000,
+        closeButton: true,
+        progress: undefined
+      });
+    }
+
+    return result;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+    if (toastId) {
+      toast.update(toastId, {
+        render: `NFT creation failed: ${errorMessage}`,
+        type: 'error',
+        autoClose: 5000,
+        closeButton: true,
+        progress: undefined
+      });
+    } else {
+      toast.error(`NFT creation failed: ${errorMessage}`);
+    }
+
+    return {
+      success: false,
+      error: errorMessage
+    };
+  }
+}
+
+/**
+ * Validate NFT creation parameters
+ */
+export function validateNFTParams(params: CreateNFTParams): string[] {
+  const errors: string[] = [];
+
+  if (!params.name?.trim()) {
+    errors.push('NFT name is required');
+  }
+
+  if (!params.imageFile) {
+    errors.push('Image file is required');
+  } else {
+    // Check file size (max 10MB)
+    if (params.imageFile.size > 10 * 1024 * 1024) {
+      errors.push('Image file must be less than 10MB');
+    }
+
+    // Check file type
+    if (!params.imageFile.type.startsWith('image/')) {
+      errors.push('File must be an image');
     }
   }
 
-  async getFractionDetails(nftId: string): Promise<{
-    supply: string;
-    available: string;
-    pricePerFraction: string;
-    minimumPurchase: string;
-  }> {
-    try {
-      // TODO: Replace with actual contract call
-      return {
-        supply: '100',
-        available: '100',
-        pricePerFraction: '0.1',
-        minimumPurchase: '1'
-      };
-    } catch (error) {
-      console.error('Error getting fraction details:', error);
-      throw error;
+  if (!params.recipientAddress?.trim()) {
+    errors.push('Recipient address is required');
+  } else {
+    // Basic Ethereum address validation
+    if (!/^0x[a-fA-F0-9]{40}$/.test(params.recipientAddress)) {
+      errors.push('Invalid Ethereum address format');
     }
   }
-} 
+
+  if (params.amount && params.amount < 1) {
+    errors.push('Amount must be at least 1');
+  }
+
+  return errors;
+}
+
+/**
+ * Fund NFTGen with 0.02 ETH from user's Nwallet
+ */
+export async function fundNFTGen(): Promise<{ success: boolean; txHash?: string; error?: string }> {
+  try {
+    console.log('💰 Starting NFTGen funding process...');
+
+    // Get user's session from centralized authentication
+    const session = authUtils.getSession();
+
+    if (!session || !session.isValid) {
+      throw new Error('No valid authentication session found. Please login to Nwallet first.');
+    }
+
+    if (!session.address) {
+      throw new Error('No wallet address found in session.');
+    }
+
+    console.log('📡 Requesting funding transfer from Nwallet...');
+
+    // Call Nwallet API to transfer 0.02 ETH to NFTGen
+    const nwalletApiUrl = 'http://3.111.22.56:6102'; // Nwallet API URL
+    const response = await fetch(`${nwalletApiUrl}/api/fund-nftgen`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userAddress: session.address,
+        amount: '0.02', // 0.02 ETH
+        sessionToken: session.sessionId
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to fund NFTGen');
+    }
+
+    const result = await response.json();
+    console.log('✅ NFTGen funding successful:', result);
+
+    return {
+      success: true,
+      txHash: result.txHash
+    };
+
+  } catch (error: any) {
+    console.error('❌ NFTGen funding failed:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+/**
+ * Check shared Nwallet balance (no separate NFTGen funding needed)
+ */
+export async function checkSharedNwalletBalance(): Promise<{ balance: string; address: string }> {
+  try {
+    // Get user's address from centralized authentication
+    const session = authUtils.getSession();
+
+    if (!session || !session.isValid) {
+      throw new Error('No valid authentication session found');
+    }
+
+    const userAddress = session.address;
+
+    console.log('🔍 Checking shared Nwallet balance for:', userAddress);
+
+    // Check balance via Nwallet API (port 6102) - this is the shared balance
+    const nwalletApiUrl = import.meta.env.VITE_WALLET_API_URL || 'http://3.111.22.56:6102';
+    const response = await fetch(`${nwalletApiUrl}/api/balance/${userAddress}`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch balance: ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    // Handle the nested response structure
+    const balance = result.success && result.data ? result.data.balance : result.balance;
+
+    console.log('💰 Shared wallet balance:', balance, 'ETH');
+
+    return {
+      balance: balance || '0',
+      address: userAddress
+    };
+
+  } catch (error: any) {
+    console.error('Failed to check shared Nwallet balance:', error);
+    return {
+      balance: '0',
+      address: ''
+    };
+  }
+}
+
+/**
+ * @deprecated Use checkSharedNwalletBalance instead
+ * Check NFTGen balance for current user
+ */
+export async function checkNFTGenBalance(): Promise<{ balance: string; address: string }> {
+  console.warn('⚠️ checkNFTGenBalance is deprecated. Use checkSharedNwalletBalance instead.');
+  return checkSharedNwalletBalance();
+}
+
+export default {
+  createNFT,
+  createTestNFT,
+  createNFTWithToasts,
+  validateNFTParams,
+  fundNFTGen, // @deprecated - no longer needed with shared credentials
+  checkNFTGenBalance, // @deprecated - use checkSharedNwalletBalance
+  checkSharedNwalletBalance
+};

@@ -1,295 +1,393 @@
 import { toast } from 'react-toastify';
+import { TransactionParams } from '../types/wallet';
+import axios from 'axios';
+import { NWALLET_API_URL, NWALLET_WS_URL, NFTGEN_ORIGIN } from '../config/constants';
 
-// Use environment variables for configuration
-const WS_HOST = process.env.REACT_APP_WS_HOST || window.location.hostname;
-const WS_PORT = process.env.REACT_APP_WS_PORT || '5176';
-const API_HOST = process.env.REACT_APP_API_HOST || window.location.hostname;
-const API_PORT = process.env.REACT_APP_API_PORT || '3456';
+// WebSocket connection state
+let ws: WebSocket | null = null;
+let isConnecting = false;
+let reconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 5;
+const RECONNECT_DELAY = 1000;
 
-const NWALLET_WS_URL = process.env.REACT_APP_WS_USE_SECURE === 'true'
-  ? `wss://${WS_HOST}:${WS_PORT}/ws`
-  : `ws://${WS_HOST}:${WS_PORT}/ws`;
+/**
+ * Service for interacting with the Nwallet
+ */
+export class NwalletService {
+  private sessionId: string | null = null;
 
-const NWALLET_API_URL = `http://${API_HOST}:${API_PORT}`;
-const RECONNECT_INTERVAL = parseInt(process.env.REACT_APP_WS_RECONNECT_INTERVAL || '5000', 10);
-const HEARTBEAT_INTERVAL = parseInt(process.env.REACT_APP_WS_HEARTBEAT_INTERVAL || '30000', 10);
-const MAX_RECONNECT_ATTEMPTS = parseInt(process.env.REACT_APP_WS_MAX_RECONNECT_ATTEMPTS || '5', 10);
-
-interface Activity {
-  hash: string;
-  createdAt: number;
-  updatedAt?: number;
-  verified?: boolean;
-  verifiedAt?: number;
-  type: 'mint' | 'transfer';
-  data: any;
-}
-
-class NwalletService {
-  private ws: WebSocket | null = null;
-  private reconnectAttempts = 0;
-  private maxReconnectAttempts = MAX_RECONNECT_ATTEMPTS;
-  private activityListeners: ((activity: Activity) => void)[] = [];
-  private heartbeatInterval: NodeJS.Timeout | null = null;
-  private reconnectTimeout: NodeJS.Timeout | null = null;
-  private isReconnecting = false;
-  private connectionCheckInterval: NodeJS.Timeout | null = null;
-  
   constructor() {
-    if (process.env.REACT_APP_DISABLE_WEBSOCKET !== 'true') {
-      this.setupWebSocket();
-      this.setupConnectionCheck();
-    }
+    // Try to get session from localStorage on initialization
+    this.sessionId = localStorage.getItem('nija_session');
+    
+    // Initialize websocket connection for real-time updates
+    this.initWebsocket();
   }
 
-  private setupConnectionCheck() {
-    // Clear existing interval if any
-    if (this.connectionCheckInterval) {
-      clearInterval(this.connectionCheckInterval);
-    }
-
-    // Check connection status every minute
-    this.connectionCheckInterval = setInterval(() => {
-      if (!this.isConnected() && !this.isReconnecting) {
-        console.log('Connection check failed, attempting reconnect...');
-        this.setupWebSocket();
-      }
-    }, 60000);
-  }
-
-  private clearIntervals() {
-    if (this.heartbeatInterval) {
-      clearInterval(this.heartbeatInterval);
-      this.heartbeatInterval = null;
-    }
-    if (this.reconnectTimeout) {
-      clearTimeout(this.reconnectTimeout);
-      this.reconnectTimeout = null;
-    }
-    if (this.connectionCheckInterval) {
-      clearInterval(this.connectionCheckInterval);
-      this.connectionCheckInterval = null;
-    }
-  }
-
-  private async setupWebSocket() {
-    if (this.isReconnecting) return;
-    this.isReconnecting = true;
-
+  /**
+   * Initialize WebSocket connection to Nwallet
+   */
+  private initWebsocket() {
     try {
-      // Check if the service is available before attempting WebSocket connection
-      const healthCheck = await fetch(`http://${WS_HOST}:${API_PORT}/health`, {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' }
-      }).catch(() => null);
+      console.log('🔌 Initializing WebSocket connection to Nija Wallet...');
+      console.log('WebSocket URL:', NWALLET_WS_URL);
 
-      if (!healthCheck?.ok) {
-        throw new Error('Service not available');
+      const sessionStr = localStorage.getItem('nija_wallet_session');
+      if (!sessionStr) {
+        console.log('No session found in localStorage');
+        return;
       }
 
-      // Clear any existing connection
-      if (this.ws) {
-        try {
-          this.ws.close();
-        } catch (error) {
-          console.warn('Error closing existing WebSocket:', error);
-        }
-        this.ws = null;
+      const session = JSON.parse(sessionStr);
+      if (!session || !session.sessionId || !session.address) {
+        console.log('Invalid session data');
+        return;
       }
 
-      this.clearIntervals();
-      
-      // Create WebSocket with error handling
-      this.ws = new WebSocket(NWALLET_WS_URL);
-      
-      if (!this.ws) {
-        throw new Error('Failed to create WebSocket connection');
+      const wsUrl = `${NWALLET_WS_URL}/ws?sessionId=${session.sessionId}&address=${session.address}&app=NFTGen&v=1.0.0&origin=${encodeURIComponent(NFTGEN_ORIGIN)}`;
+      console.log('🔌 Attempting to connect to WebSocket at', wsUrl);
+
+      // Prevent multiple simultaneous connection attempts
+      if (isConnecting) {
+        console.log('Already attempting to connect to WebSocket');
+        return;
       }
 
-      // Set up event handlers with proper error handling
-      const ws = this.ws;
-      
-      ws.onopen = () => {
-        console.log('Connected to Nwallet WebSocket');
-        this.reconnectAttempts = 0;
-        this.isReconnecting = false;
+      // If already connected, don't reconnect
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        console.log('WebSocket already connected');
+        return;
+      }
 
-        // Setup heartbeat only after successful connection
-        this.heartbeatInterval = setInterval(() => {
-          if (ws.readyState === WebSocket.OPEN) {
+      isConnecting = true;
+
+      try {
+        // Create WebSocket connection with proper error handling
+        ws = new WebSocket(wsUrl);
+        console.log('WebSocket object created');
+
+        // Set up event handlers
+        ws.onopen = () => {
+          console.log('🔌 WebSocket connection established successfully');
+          reconnectAttempts = 0;
+          isConnecting = false;
+
+          // Send identification message
+          if (ws && ws.readyState === WebSocket.OPEN) {
             try {
-              ws.send(JSON.stringify({ type: 'heartbeat' }));
-            } catch (error) {
-              console.error('Error sending heartbeat:', error);
-              this.handleDisconnect('Heartbeat failed');
+              const identifyMessage = {
+                type: 'identify',
+                app: 'NFTGen',
+                sessionId: session.sessionId,
+                address: session.address,
+                timestamp: Date.now()
+              };
+              ws.send(JSON.stringify(identifyMessage));
+              console.log('🔌 Identification message sent');
+            } catch (identifyError) {
+              console.error('🔌 Error sending identification message:', identifyError);
             }
           }
-        }, HEARTBEAT_INTERVAL);
+        };
 
-        // Send initial connection message
-        try {
-          ws.send(JSON.stringify({ 
-            type: 'connect',
-            data: {
-              origin: window.location.origin,
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            console.log('🔌 Received WebSocket message:', data);
+            
+            // Handle specific message types
+            if (data.type === 'heartbeat') {
+              // Send heartbeat response
+              if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+                  type: 'heartbeat-response',
               timestamp: Date.now()
+            }));
+              }
             }
-          }));
-          toast.success('Connected to Nija Wallet');
+          } catch (error) {
+            console.error('🔌 Error processing WebSocket message:', error);
+          }
+        };
+
+        ws.onerror = (error) => {
+          console.error('🔌 WebSocket error:', error);
+          isConnecting = false;
+        };
+
+        ws.onclose = (event) => {
+          console.log(`🔌 WebSocket connection closed: ${event.code} ${event.reason}`);
+          isConnecting = false;
+
+          // Attempt to reconnect if not at max attempts
+          if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+            reconnectAttempts++;
+            console.log(`🔌 Attempting to reconnect (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
+            
+            // Exponential backoff for reconnect attempts
+            setTimeout(() => {
+              this.initWebsocket();
+            }, RECONNECT_DELAY * Math.pow(2, reconnectAttempts - 1));
+          } else {
+            console.warn('🔌 Max reconnect attempts reached. Please check the WebSocket server.');
+          }
+        };
         } catch (error) {
-          console.error('Error sending initial connection message:', error);
-          this.handleDisconnect('Failed to send initial message');
-        }
-      };
-      
-      ws.onclose = (event) => {
-        console.log('WebSocket closed:', event.code, event.reason);
-        this.handleDisconnect(`Connection closed: ${event.code}`);
-      };
-      
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        // Don't call handleDisconnect here as onclose will be called
-      };
-      
+        console.error('🔌 Error creating WebSocket connection:', error);
+        isConnecting = false;
+      }
     } catch (error) {
-      console.error('Error setting up WebSocket:', error);
-      this.handleDisconnect(error instanceof Error ? error.message : 'Unknown error');
+      console.error('Error initializing WebSocket:', error);
     }
   }
 
-  private handleDisconnect(reason: string = 'Unknown reason') {
-    console.log(`Disconnected from Nwallet WebSocket: ${reason}`);
-    this.clearIntervals();
+  /**
+   * Handle transaction updates from WebSocket
+   */
+  private handleTransactionUpdate(transaction: any) {
+    // Display transaction notification
+    toast.info(`Transaction ${transaction.hash.substring(0, 6)}... ${transaction.status}`);
     
-    if (this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.reconnectAttempts++;
-      this.isReconnecting = false;
-      const delay = RECONNECT_INTERVAL * Math.min(this.reconnectAttempts, 5);
-      console.log(`Attempting reconnect in ${delay}ms (attempt ${this.reconnectAttempts})`);
-      
-      this.reconnectTimeout = setTimeout(() => {
-        this.setupWebSocket();
-      }, delay);
-    } else {
-      this.isReconnecting = false;
-      toast.error(`Failed to connect to Nija Wallet: ${reason}`);
-    }
+    // Dispatch custom event that can be listened to by components
+    window.dispatchEvent(new CustomEvent('nwallet-transaction-update', { 
+      detail: transaction
+    }));
   }
 
-  private notifyActivityListeners(activity: Activity) {
-    this.activityListeners.forEach(listener => {
+  /**
+   * Connect to Nwallet
+   */
+  async connect(): Promise<string | null> {
+    try {
+      // First check if already connected
+      if (this.sessionId) {
+        console.log("Found existing session, verifying...");
+        const isValid = await this.verifySession();
+        if (isValid) {
+          console.log("Existing session is valid");
+          return this.getAddress();
+        } else {
+          console.log("Existing session is invalid, creating new session");
+          localStorage.removeItem('nija_session');
+          this.sessionId = null;
+        }
+      }
+      
+      console.log("Requesting new wallet connection");
+      
+      // Try the normal endpoint first
+      let response;
       try {
-        listener(activity);
-      } catch (error) {
-        console.error('Error in activity listener:', error);
+        response = await fetch(`${NWALLET_API_URL}/wallet/connect`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Origin': 'http://3.111.22.56:7104'
+          },
+          body: JSON.stringify({
+            origin: 'http://3.111.22.56:7104',
+            dappName: 'NFTGen'
+          })
+        });
+      } catch (fetchError) {
+        console.error("Error connecting to primary endpoint:", fetchError);
+        
+        // Try the legacy endpoint if the first one fails
+        response = await fetch(`${NWALLET_API_URL}/connect`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            origin: NFTGEN_ORIGIN,
+            dappName: 'NFTGen'
+          })
+        });
       }
-    });
-  }
-
-  public addActivityListener(listener: (activity: Activity) => void) {
-    this.activityListeners.push(listener);
-    return () => this.removeActivityListener(listener);
-  }
-
-  public removeActivityListener(listener: (activity: Activity) => void) {
-    this.activityListeners = this.activityListeners.filter(l => l !== listener);
-  }
-
-  public async getAllActivities(): Promise<Activity[]> {
-    try {
-      const response = await fetch('/api/activities', {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
       
       if (!response.ok) {
-        throw new Error('Failed to fetch activities');
+        console.error(`Connection failed with status: ${response.status}`);
+        throw new Error(`Failed to connect to wallet (Status: ${response.status})`);
       }
-      return await response.json();
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to connect to wallet');
+      }
+      
+      console.log("Successfully connected to wallet:", data);
+      
+      // Store session
+      this.sessionId = data.sessionId;
+      localStorage.setItem('nija_session', data.sessionId);
+      
+      // Return address
+      return data.address || null;
     } catch (error) {
-      console.error('Error fetching activities:', error);
-      throw error;
+      console.error('Connect error:', error);
+      toast.error('Failed to connect to wallet. Please try again.');
+      return null;
     }
   }
 
-  public async getActivity(hash: string): Promise<Activity> {
+  /**
+   * Verify if current session is valid
+   */
+  async verifySession(): Promise<boolean> {
     try {
-      const response = await fetch(`/api/activities/${hash}`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Activity not found');
+      if (!this.sessionId) {
+        console.log("No session ID found");
+        return false;
       }
-      return await response.json();
-    } catch (error) {
-      console.error('Error fetching activity:', error);
-      throw error;
-    }
-  }
-
-  public async verifyTransaction(hash: string): Promise<boolean> {
-    try {
-      const response = await fetch(`${NWALLET_API_URL}/api/verify`, {
+      
+      const response = await fetch(`${NWALLET_API_URL}/session/verify`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ hash })
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          sessionId: this.sessionId
+        })
       });
       
       if (!response.ok) {
-        throw new Error('Failed to verify transaction');
+        console.log(`Session verification failed with status: ${response.status}`);
+        if (response.status === 404) {
+          // Try the legacy endpoint
+          const legacyResponse = await fetch(`${NWALLET_API_URL}/wallet/verify`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              sessionId: this.sessionId
+            })
+          });
+          
+          if (!legacyResponse.ok) {
+            console.log("Legacy session verification also failed");
+            return false;
+          }
+          
+          const legacyData = await legacyResponse.json();
+          return legacyData.valid === true;
+        }
+        return false;
       }
       
-      const result = await response.json();
-      return result.status === 'verified';
+      const data = await response.json();
+      const isValid = data.valid === true;
+      console.log(`Session verification result: ${isValid}`);
+      return isValid;
     } catch (error) {
-      console.error('Error verifying transaction:', error);
-      throw error;
+      console.error('Verify session error:', error);
+      return false;
     }
   }
 
-  public async syncActivity(activity: Omit<Activity, 'createdAt'>) {
+  /**
+   * Get currently connected wallet address
+   */
+  async getAddress(): Promise<string | null> {
     try {
-      if (this.ws?.readyState !== WebSocket.OPEN) {
-        throw new Error('WebSocket not connected');
+      if (!this.sessionId) {
+        return null;
       }
       
-      const activityData = {
-        ...activity,
-        createdAt: Date.now()
-      };
+      const response = await fetch(`${NWALLET_API_URL}/wallet/address`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.sessionId}`
+        }
+      });
       
-      this.ws.send(JSON.stringify({
-        type: 'activity-sync',
-        data: activityData
-      }));
+      if (!response.ok) {
+        throw new Error('Failed to get address');
+      }
       
-      return true;
+      const data = await response.json();
+      return data.address || null;
     } catch (error) {
-      console.error('Error syncing activity:', error);
+      console.error('Get address error:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Send a transaction through Nwallet
+   */
+  async sendTransaction(transaction: TransactionParams): Promise<string | null> {
+    try {
+      if (!this.sessionId) {
+        throw new Error('Not connected to wallet');
+      }
+      
+      const response = await fetch(`${NWALLET_API_URL}/wallet/send-transaction`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.sessionId}`
+        },
+        body: JSON.stringify({
+          transaction,
+          sessionId: this.sessionId,
+          nonce: this.generateNonce()
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Transaction failed');
+      }
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Transaction failed');
+      }
+      
+      return data.hash || null;
+    } catch (error) {
+      console.error('Send transaction error:', error);
+      toast.error('Transaction failed. Please try again.');
       throw error;
     }
   }
 
-  public isConnected(): boolean {
-    return this.ws?.readyState === WebSocket.OPEN;
+  /**
+   * Disconnect from Nwallet
+   */
+  async disconnect(): Promise<void> {
+    try {
+      if (this.sessionId) {
+        await fetch(`${NWALLET_API_URL}/wallet/disconnect`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            sessionId: this.sessionId
+          })
+        });
+      }
+    } catch (error) {
+      console.error('Disconnect error:', error);
+    } finally {
+      // Clear session regardless of API success
+      this.sessionId = null;
+      localStorage.removeItem('nija_session');
+      localStorage.removeItem('nija_eth_address');
+      localStorage.removeItem('nija_chain_id');
+    }
   }
 
-  public disconnect() {
-    this.clearIntervals();
-    if (this.ws) {
-      this.ws.close();
-      this.ws = null;
-    }
-    this.reconnectAttempts = this.maxReconnectAttempts; // Prevent auto-reconnect
+  /**
+   * Generate a random nonce for request authentication
+   */
+  private generateNonce(): string {
+    return Math.random().toString(36).substring(2, 15) + 
+           Math.random().toString(36).substring(2, 15);
   }
 }
 

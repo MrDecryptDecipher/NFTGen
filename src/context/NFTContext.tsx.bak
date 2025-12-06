@@ -1,0 +1,414 @@
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
+import { ethers } from 'ethers';
+import { toast } from 'react-toastify';
+import { useWallet } from './WalletContext';
+// import { mintNFT } from '../api/nft'; // Comment out if using contract directly or backend relay
+import { getNFTMetadata, getNFTsForOwner } from '../lib/alchemy';
+// import { NFT_CONTRACT_ABI } from '../contracts/NFTGen'; // May not be needed if calling backend API
+import * as ipfsAdapter from "../utils/ipfs-adapter"; // Import IPFS adapter
+// Remove Pinata imports
+// import { uploadFileToIPFS, uploadJSONToIPFS, getMockIPFSUrl, checkPinataConnection } from '../utils/pinata';
+// import { mintNFT as mintContractNFT } from '../utils/nftContract'; // May not be needed
+import axios from 'axios';
+import { create as createIpfsClient, IPFSHTTPClient } from 'ipfs-http-client'; // Add IPFS client import
+import { handleMintComplete } from '../utils/nftActivitySync'; // Import NFT activity sync utility
+
+interface NFT {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  owner: string;
+  contractAddress: string;
+  tokenId: string;
+  status: 'PENDING' | 'MINTED' | 'FAILED';
+  transactionHash?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface NFTMetadata {
+  name: string;
+  description: string;
+  image: string;
+  external_url?: string;
+  attributes?: Array<{
+    trait_type: string;
+    value: string | number;
+  }>;
+}
+
+interface NFTContextType {
+  isProMode: boolean;
+  setIsProMode: (value: boolean) => void;
+  nftImage: File | null;
+  setNftImage: (file: File | null) => void;
+  nftMetadata: NFTMetadata;
+  setNftMetadata: (metadata: NFTMetadata) => void;
+  royalties: number;
+  setRoyalties: (value: number) => void;
+  fractions: number;
+  setFractions: (value: number) => void;
+  isMinting: boolean;
+  mintNFT: () => Promise<void>;
+  previewUrl: string | null;
+  setPreviewUrl: (url: string | null) => void;
+  userNFTs: NFT[];
+  refreshUserNFTs: () => Promise<void>;
+  mintNFTWithContract: (recipient: string, name: string, description: string, imageUrl: string) => Promise<string>;
+  isLoadingNFTs: boolean;
+  fetchUserNFTs: () => Promise<NFT[]>;
+  fetchNFTById: (id: string) => Promise<NFT | null>;
+  uploadToIPFS: (file: File) => Promise<string>;
+  uploadMetadataToIPFS: (metadata: NFTMetadata) => Promise<string>;
+  createNFT: (
+    name: string,
+    description: string,
+    image: File,
+    price?: string,
+    royalty?: number
+  ) => Promise<string>;
+  listNFTForSale: (tokenId: string, price: string) => Promise<boolean>;
+  buyNFT: (tokenId: string, price: string) => Promise<boolean>;
+}
+
+const NFTContext = createContext<NFTContextType>({
+  isProMode: false,
+  setIsProMode: () => {},
+  nftImage: null,
+  setNftImage: () => {},
+  nftMetadata: {
+    name: '',
+    description: '',
+    image: '',
+  },
+  setNftMetadata: () => {},
+  royalties: 0,
+  setRoyalties: () => {},
+  fractions: 1,
+  setFractions: () => {},
+  isMinting: false,
+  mintNFT: async () => {},
+  previewUrl: null,
+  setPreviewUrl: () => {},
+  userNFTs: [],
+  refreshUserNFTs: async () => {},
+  mintNFTWithContract: async () => '',
+  isLoadingNFTs: false,
+  fetchUserNFTs: async () => [],
+  fetchNFTById: async () => null,
+  uploadToIPFS: async () => '',
+  uploadMetadataToIPFS: async () => '',
+  createNFT: async () => '',
+  listNFTForSale: async () => false,
+  buyNFT: async () => false,
+});
+
+interface NFTProviderProps {
+  children: ReactNode;
+}
+
+export const NFTProvider: React.FC<NFTProviderProps> = ({ children }) => {
+  const { provider, signer, address } = useWallet();
+  const [isProMode, setIsProMode] = useState(false);
+  const [nftImage, setNftImage] = useState<File | null>(null);
+  const [nftMetadata, setNftMetadata] = useState<NFTMetadata>({
+    name: '',
+    description: '',
+    image: '',
+  });
+  const [royalties, setRoyalties] = useState(0);
+  const [fractions, setFractions] = useState(1);
+  const [isMinting, setIsMinting] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [userNFTs, setUserNFTs] = useState<NFT[]>([]);
+  const [isLoadingNFTs, setIsLoadingNFTs] = useState(false);
+  const [ipfsClient, setIpfsClient] = useState<IPFSHTTPClient | null>(null); // State for IPFS client
+
+  // Initialize IPFS Client on mount
+  useEffect(() => {
+    const initIpfs = () => {
+        // Use a public IPFS gateway URL
+        const url = 'https://ipfs.io'; // Or another public gateway like 'https://dweb.link'
+
+        if (url) {
+            try {
+                // No authentication needed for public gateway interaction via client
+                const client = createIpfsClient({ url });
+                setIpfsClient(client);
+                console.log('NFTContext: IPFS client initialized for public gateway:', url);
+            } catch (error) {
+                console.error("NFTContext: Error initializing IPFS client for public gateway:", error);
+                toast.error("Failed to initialize IPFS connection.");
+            }
+        } else {
+            // This case should ideally not happen with a hardcoded URL
+            console.error('NFTContext: IPFS public gateway URL is missing.');
+            toast.error("IPFS configuration error.");
+        }
+    };
+    initIpfs();
+  }, []); // Run only once on mount
+
+  // Function to refresh user's NFTs
+  const refreshUserNFTs = useCallback(async () => {
+    if (!address) return;
+    
+    try {
+      // Use the NFT contract address
+      const contractAddress = "0x7C48738789A79FAb8DD3Ed0E787A9456262E928A";
+      console.log("Using NFT contract address:", contractAddress);
+      
+      if (!provider) {
+        console.warn("Provider not available");
+        setUserNFTs([]);
+        return;
+      }
+      
+      try {
+        // For debugging, let's log current provider info
+        console.log("Provider connection details:", {
+          isConnected: provider ? "yes" : "no",
+        });
+        
+        // Skip provider validation as Nija wallet doesn't support eth_blockNumber
+        console.log("Fetching NFTs from API for address:", address);
+        
+        // Get user's NFT balance using API instead of ethers.js
+        try {
+          // Use getNFTsForOwner helper from Alchemy
+          const ownerNFTs = await getNFTsForOwner(address);
+          
+          if (ownerNFTs && Array.isArray(ownerNFTs)) {
+            console.log('NFTs fetched via Alchemy:', ownerNFTs);
+            
+            // Map Alchemy NFTs to our NFT format
+            const formattedNFTs: NFT[] = ownerNFTs
+              .filter(nft => {
+                // We need to extract the contract address from the id (format: contractAddress-tokenId)
+                const contractFromId = nft.id.split('-')[0];
+                return contractFromId?.toLowerCase() === contractAddress.toLowerCase();
+              })
+              .map(nft => {
+                // Extract tokenId from the nft.id (format: contractAddress-tokenId)
+                const tokenId = nft.id.split('-')[1] || '';
+                
+                return {
+                  id: nft.id,
+                  name: nft.name,
+                  description: nft.description || '',
+                  image: nft.image || '',
+                  contractAddress: contractAddress,
+                  tokenId: tokenId,
+                  status: 'MINTED' as const,
+              owner: address,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+                };
+              });
+            
+            console.log('Formatted NFTs:', formattedNFTs);
+            
+            if (formattedNFTs.length > 0) {
+              setUserNFTs(formattedNFTs);
+            } else {
+              console.log("No NFTs found from this contract");
+              setUserNFTs([]);
+            }
+          } else {
+            console.log("No NFTs found via Alchemy");
+            setUserNFTs([]);
+          }
+        } catch (alchemyError) {
+          console.error("Error using Alchemy API:", alchemyError);
+          toast.error('Could not load your NFTs');
+          setUserNFTs([]);
+        }
+      } catch (contractError) {
+        console.error('NFT loading error:', contractError);
+        toast.error('Failed to load your NFTs');
+        setUserNFTs([]);
+      }
+    } catch (error) {
+      console.error('Error fetching user NFTs:', error);
+      toast.error('Failed to load your NFTs');
+      setUserNFTs([]);
+    }
+  }, [address, provider]);
+
+  // Refresh NFTs when address changes
+  React.useEffect(() => {
+    refreshUserNFTs();
+  }, [address, refreshUserNFTs]);
+  const uploadToIPFS = useCallback(async (file: File): Promise<string> => {
+    console.log("Attempting IPFS file upload using adapter:", file.name);
+    try {
+      // Use our adapter for file uploads
+      const url = await ipfsAdapter.uploadFileToIPFS(file);
+      console.log("IPFS file upload successful. URL:", url);
+      return url;
+    } catch (error) {
+      // Assert error type
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error("IPFS file upload failed:", errorMessage);
+      throw new Error(`IPFS file upload failed: ${errorMessage}`);
+    }
+  }, []);
+  const uploadMetadataToIPFS = useCallback(async (metadata: NFTMetadata): Promise<string> => {
+    console.log("Attempting IPFS metadata upload using adapter:", metadata.name);
+    try {
+      // Use our adapter for metadata uploads
+      const url = await ipfsAdapter.uploadMetadataToIPFS(metadata);
+      console.log("IPFS metadata upload successful. URL:", url);
+      return url;
+    } catch (error) {
+      // Assert error type
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error("IPFS metadata upload failed:", errorMessage);
+      throw new Error(`IPFS metadata upload failed: ${errorMessage}`);
+    }
+  }, []);
+
+  // This function handles the overall process, calling uploads and then the backend API
+    address, 
+    nftImage, 
+    nftMetadata, 
+    
+    uploadToIPFS, 
+    uploadMetadataToIPFS, 
+    refreshUserNFTs, 
+    // Include state setters used in success case
+    setNftImage, 
+    setNftMetadata, 
+    setPreviewUrl, 
+    setRoyalties, 
+    setFractions 
+  ]);
+
+  /**
+   * Mint an NFT using our deployed ERC-721 contract
+   * @param recipient Address to receive the NFT
+   * @param name NFT name
+   * @param description NFT description 
+   * @param imageUrl IPFS URL of the image
+   * @returns Transaction hash
+   */
+  const mintNFTWithContract = async (
+    recipient: string,
+    name: string,
+    description: string,
+    imageUrl: string
+  ): Promise<string> => {
+    // This function seems redundant now or needs significant rework
+    // It attempts to sign/mint directly from the frontend which is not the current plan
+    console.warn("mintNFTWithContract function might be outdated. Review its usage.");
+    toast.warn("Direct contract minting from frontend is deprecated.");
+    // Removed call to unused mintContractNFT
+    return ""; // Return empty string or handle appropriately
+  };
+
+  // Fetch user's NFTs
+  const fetchUserNFTs = async (): Promise<NFT[]> => {
+    if (!address) {
+      toast.error('Please connect your wallet first');
+      return [];
+    }
+
+    setIsLoadingNFTs(true);
+
+    try {
+      const response = await axios.get(`/api/nft/owned/${address}`);
+      return response.data.nfts || [];
+    } catch (error) {
+      console.error('Error fetching user NFTs:', error);
+      toast.error('Failed to fetch your NFTs');
+      return [];
+    } finally {
+      setIsLoadingNFTs(false);
+    }
+  };
+
+  // Fetch a specific NFT by ID
+  const fetchNFTById = async (id: string): Promise<NFT | null> => {
+    try {
+      const response = await axios.get(`/api/nft/${id}`);
+      return response.data.nft || null;
+    } catch (error) {
+      console.error('Error fetching NFT details:', error);
+      toast.error('Failed to fetch NFT details');
+      return null;
+    }
+  };
+
+  // List NFT for sale
+  const listNFTForSale = async (tokenId: string, price: string): Promise<boolean> => {
+    if (!address || !signer) {
+      toast.error('Please connect your wallet first');
+      return false;
+    }
+
+    try {
+      // Implementation for listing NFT
+      return true;
+    } catch (error) {
+      console.error('Error listing NFT for sale:', error);
+      toast.error('Failed to list NFT for sale');
+      return false;
+    }
+  };
+
+  // Buy NFT
+  const buyNFT = async (tokenId: string, price: string): Promise<boolean> => {
+    if (!address || !signer) {
+      toast.error('Please connect your wallet first');
+      return false;
+    }
+
+    try {
+      // Implementation for buying NFT
+      return true;
+    } catch (error) {
+      console.error('Error buying NFT:', error);
+      toast.error('Failed to buy NFT');
+      return false;
+    }
+  };
+
+  return (
+    <NFTContext.Provider
+      value={{
+        isProMode,
+        setIsProMode,
+        nftImage,
+        setNftImage,
+        nftMetadata,
+        setNftMetadata,
+        royalties,
+        setRoyalties,
+        fractions,
+        setFractions,
+        isMinting,
+        mintNFT: handleMintNFT,
+        previewUrl,
+        setPreviewUrl,
+        userNFTs,
+        refreshUserNFTs,
+        mintNFTWithContract,
+        isLoadingNFTs,
+        fetchUserNFTs,
+        fetchNFTById,
+        uploadToIPFS,
+        uploadMetadataToIPFS,
+        createNFT: async () => '',
+        listNFTForSale,
+        buyNFT,
+      }}
+    >
+      {children}
+    </NFTContext.Provider>
+  );
+};
+
+export const useNFT = () => useContext(NFTContext);
+
+export default NFTContext; 

@@ -235,17 +235,16 @@ function fallbackToCustomEvent() {
 const getWalletWebSocketUrl = (): string => {
   // If running in a local development environment
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    // Updated port to match the Nija Wallet WebSocket server port
-    return `ws://${window.location.hostname}:3001/ws`;
+    return `ws://${window.location.hostname}:6102/ws`;
   }
   
   // If running on the specific IP
-  if (window.location.hostname === '13.126.230.108' || /^\d+\.\d+\.\d+\.\d+$/.test(window.location.hostname)) {
-    return `ws://${window.location.hostname}:3001/ws`;
+  if (window.location.hostname === '3.111.22.56' || /^\d+\.\d+\.\d+\.\d+$/.test(window.location.hostname)) {
+    return `ws://${window.location.hostname}:6102/ws`;
   }
   
   // Default fallback for Chrome extension or production environment
-  return 'ws://13.126.230.108:3001/ws';
+  return 'ws://3.111.22.56:6102/ws';
 };
 
 // Enhanced WebSocket connection with better error handling
@@ -281,7 +280,7 @@ export function createWebSocketConnection(): void {
     console.log(`🔌 Attempting to connect to WebSocket at ${url}`);
     
     // Add a timeout to handle connection issues
-    let connectionTimeout = setTimeout(() => {
+    const connectionTimeout = setTimeout(() => {
       console.warn('⏱️ WebSocket connection attempt timed out');
       if (ws && ws.readyState !== 1) { // 1 = OPEN state
         try {
@@ -315,6 +314,18 @@ export function createWebSocketConnection(): void {
       
       // Handle any pending activities that weren't sent
       processPendingActivities();
+      
+      // Send CORS headers
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'cors-headers',
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+          }
+        }));
+      }
     };
     
     ws.onmessage = (event) => {

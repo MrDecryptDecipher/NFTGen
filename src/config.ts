@@ -1,11 +1,11 @@
 // API configuration
-export const API_BASE_URL = 'http://3.111.22.56:5177';
+export const API_BASE_URL = 'http://3.111.22.56:7102';
 
-// NFT API configuration 
-export const NFT_API_BASE_URL = 'http://3.111.22.56:3000';
+// NFT API configuration
+export const NFT_API_BASE_URL = process.env.REACT_APP_API_URL || process.env.VITE_API_URL || 'http://3.111.22.56:7102';
 
 // WebSocket configuration
-export const WS_BASE_URL = 'ws://3.111.22.56:5176';
+export const WS_BASE_URL = 'ws://3.111.22.56:7101';
 
 // NFT contract configuration
 export const NFT_FRACTIONALIZATION_ADDRESS = '0x...'; // Replace with actual contract address
@@ -47,4 +47,12 @@ export const NFT_FRACTIONALIZATION_ABI = [
     stateMutability: 'view',
     type: 'function'
   }
-]; 
+];
+
+// Update the base URLs to point to the Nwallet server
+export const NFT_WS_URL = process.env.REACT_APP_WS_URL || process.env.VITE_WS_URL || 'ws://3.111.22.56:7103';
+export const WALLET_API_URL = process.env.REACT_APP_WALLET_API_URL || process.env.VITE_WALLET_API_URL || 'http://3.111.22.56:6102/api';
+
+export const NFTGEN_URL = 'http://3.111.22.56:7104';
+export const NFTGEN_GRAPHQL_URL = 'http://3.111.22.56:7104/graphql';
+export const NFTGEN_WS_URL = 'ws://3.111.22.56:7104';

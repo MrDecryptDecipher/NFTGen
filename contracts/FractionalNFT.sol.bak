@@ -1,0 +1,281 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
+import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
+
+/**
+ * @title FractionalNFT
+ * @dev ERC1155 contract for fractionalized ownership of NFTs
+ * Allows users to deposit ERC721 tokens and receive ERC1155 fractions
+ */
+contract FractionalNFT is 
+    ERC1155, 
+    ERC1155URIStorage, 
+    ERC1155Supply, 
+    ERC721Holder, 
+    Ownable, 
+    ReentrancyGuard, 
+    Pausable {
+    
+    using Strings for uint256;
+    
+    // Struct to keep track of fractionalized NFTs
+    struct FractionalizedNFT {
+        address originalContract;    // Address of the original ERC721 contract
+        uint256 originalTokenId;     // Token ID in the original contract
+        uint256 fractionSupply;      // Total supply of fractions
+        string tokenURI;             // URI for token metadata
+        bool locked;                 // Whether the NFT is locked in the contract
+        address originalOwner;       // Original owner who fractionalized the NFT
+    }
+    
+    // Map from fractionId to fractionalized NFT details
+    mapping(uint256 => FractionalizedNFT) public fractionDetails;
+    
+    // Counter for fraction IDs
+    uint256 private _currentFractionId;
+    
+    // Royalty information
+    struct RoyaltyInfo {
+        address recipient;
+        uint256 percentage; // Using basis points (10000 = 100%)
+    }
+    
+    // Royalty info per fraction
+    mapping(uint256 => RoyaltyInfo) public royalties;
+    
+    // Events
+    event NFTFractionalized(
+        address indexed originalContract,
+        uint256 indexed originalTokenId,
+        uint256 indexed fractionId,
+        uint256 fractionSupply,
+        address owner
+    );
+    
+    event NFTRedeemed(
+        uint256 indexed fractionId,
+        address indexed redeemer,
+        address originalContract,
+        uint256 originalTokenId
+    );
+    
+    event FractionTransferred(
+        uint256 indexed fractionId,
+        address indexed from,
+        address indexed to,
+        uint256 amount
+    );
+    
+    event RoyaltySet(
+        uint256 indexed fractionId,
+        address recipient,
+        uint256 percentage
+    );
+    
+    event BatchFractionsTransferred(
+        uint256[] fractionIds,
+        address indexed from,
+        address[] recipients,
+        uint256[] amounts
+    );
+    
+    constructor() ERC1155("") Ownable(msg.sender) {
+        _currentFractionId = 1;
+    }
+    
+    /**
+     * @dev Fractionalize an ERC721 token into ERC1155 fractions
+     * @param nftContract Address of the ERC721 contract
+     * @param tokenId Token ID of the ERC721 token
+     * @param supply Number of fractions to create
+     * @param tokenURI URI for the fraction's metadata
+     * @param royaltyRecipient Address that will receive royalties
+     * @param royaltyPercentage Royalty percentage in basis points (100 = 1%)
+     * @return fractionId ID of the created fractions
+     */
+    function fractionalize(
+        address nftContract,
+        uint256 tokenId,
+        uint256 supply,
+        string memory tokenURI,
+        address royaltyRecipient,
+        uint256 royaltyPercentage
+    ) external nonReentrant whenNotPaused returns (uint256) {
+        require(supply > 0, "Supply must be greater than 0");
+        require(royaltyPercentage <= 1000, "Royalty percentage too high"); // Max 10%
+        
+        // Transfer the NFT from the sender to this contract
+        IERC721(nftContract).safeTransferFrom(msg.sender, address(this), tokenId);
+        
+        // Create the fraction
+        uint256 fractionId = _currentFractionId++;
+        
+        // Store fractionalized NFT details
+        fractionDetails[fractionId] = FractionalizedNFT({
+            originalContract: nftContract,
+            originalTokenId: tokenId,
+            fractionSupply: supply,
+            tokenURI: tokenURI,
+            locked: true,
+            originalOwner: msg.sender
+        });
+        
+        // Set royalty info
+        royalties[fractionId] = RoyaltyInfo({
+            recipient: royaltyRecipient,
+            percentage: royaltyPercentage
+        });
+        
+        // Mint fractions to the sender
+        _mint(msg.sender, fractionId, supply, "");
+        
+        // Set URI for the fractions
+        _setURI(fractionId, tokenURI);
+        
+        emit NFTFractionalized(nftContract, tokenId, fractionId, supply, msg.sender);
+        emit RoyaltySet(fractionId, royaltyRecipient, royaltyPercentage);
+        
+        return fractionId;
+    }
+    
+    /**
+     * @dev Transfer fractions to multiple recipients
+     * @param fractionId ID of the fraction
+     * @param recipients Array of recipient addresses
+     * @param amounts Array of amounts to send to each recipient
+     */
+    function transferToMultipleRecipients(
+        uint256 fractionId,
+        address[] memory recipients,
+        uint256[] memory amounts
+    ) external nonReentrant whenNotPaused {
+        require(recipients.length == amounts.length, "Recipients and amounts length mismatch");
+        require(recipients.length > 0, "No recipients specified");
+        
+        uint256 totalAmount = 0;
+        for (uint256 i = 0; i < amounts.length; i++) {
+            totalAmount += amounts[i];
+            safeTransferFrom(msg.sender, recipients[i], fractionId, amounts[i], "");
+            
+            emit FractionTransferred(fractionId, msg.sender, recipients[i], amounts[i]);
+        }
+        
+        require(totalAmount <= balanceOf(msg.sender, fractionId), "Insufficient balance");
+    }
+    
+    /**
+     * @dev Batch transfer fractions to multiple recipients
+     * @param fractionIds Array of fraction IDs
+     * @param recipients Array of recipient addresses
+     * @param amounts Array of amounts to send to each recipient
+     */
+    function batchTransferToMultipleRecipients(
+        uint256[] memory fractionIds,
+        address[] memory recipients,
+        uint256[] memory amounts
+    ) external nonReentrant whenNotPaused {
+        require(recipients.length == amounts.length, "Recipients and amounts length mismatch");
+        require(recipients.length > 0, "No recipients specified");
+        require(fractionIds.length > 0, "No fraction IDs specified");
+        
+        for (uint256 i = 0; i < recipients.length; i++) {
+            for (uint256 j = 0; j < fractionIds.length; j++) {
+                safeBatchTransferFrom(
+                    msg.sender, 
+                    recipients[i], 
+                    fractionIds, 
+                    amounts, 
+                    ""
+                );
+            }
+        }
+        
+        emit BatchFractionsTransferred(fractionIds, msg.sender, recipients, amounts);
+    }
+    
+    /**
+     * @dev Redeem an NFT by burning all fractions
+     * @param fractionId ID of the fraction
+     */
+    function redeemNFT(uint256 fractionId) external nonReentrant whenNotPaused {
+        FractionalizedNFT memory nftInfo = fractionDetails[fractionId];
+        require(nftInfo.locked, "NFT not locked in contract");
+        
+        uint256 totalSupply = nftInfo.fractionSupply;
+        uint256 balance = balanceOf(msg.sender, fractionId);
+        
+        require(balance == totalSupply, "Must own all fractions to redeem");
+        
+        // Burn all fractions
+        _burn(msg.sender, fractionId, totalSupply);
+        
+        // Unlock the NFT
+        fractionDetails[fractionId].locked = false;
+        
+        // Transfer the NFT back to the redeemer
+        IERC721(nftInfo.originalContract).safeTransferFrom(
+            address(this),
+            msg.sender,
+            nftInfo.originalTokenId
+        );
+        
+        emit NFTRedeemed(fractionId, msg.sender, nftInfo.originalContract, nftInfo.originalTokenId);
+    }
+    
+    /**
+     * @dev Pause the contract
+     */
+    function pause() external onlyOwner {
+        _pause();
+    }
+    
+    /**
+     * @dev Unpause the contract
+     */
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+    
+    /**
+     * @dev Returns the URI for a given token ID
+     * @param id The token ID
+     * @return The URI for the token
+     */
+    function uri(uint256 id) public view override(ERC1155, ERC1155URIStorage) returns (string memory) {
+        return ERC1155URIStorage.uri(id);
+    }
+    
+    /**
+     * @dev Get royalty information for a fraction
+     * @param fractionId ID of the fraction
+     * @return recipient Address that receives royalties
+     * @return percentage Royalty percentage
+     */
+    function getRoyaltyInfo(uint256 fractionId) external view returns (address recipient, uint256 percentage) {
+        RoyaltyInfo memory info = royalties[fractionId];
+        return (info.recipient, info.percentage);
+    }
+    
+    // Required overrides
+    function _update(
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts
+    ) internal override(ERC1155, ERC1155Supply) whenNotPaused {
+        super._update(from, to, ids, amounts);
+    }
+    
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155) returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
+} 

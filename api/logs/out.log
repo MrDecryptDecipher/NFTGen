@@ -1,0 +1,873 @@
+2025-05-01 21:02:10: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-01 21:02:10: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-01 21:02:10: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-01 21:02:10: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-01 21:02:10: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-01 21:02:10: 📦 Connected to MongoDB
+2025-05-01 21:06:07: [NFTGen API] Fetching gallery for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:06:07: [NFTGen API] Found 0 NFTs in database for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:06:07: [NFTGen API] No NFTs found in database, checking activities
+2025-05-01 21:06:07: [NFTGen API] Found 0 mint activities for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:06:07: [NFTGen API] No activities found, creating mock NFT for better UX
+2025-05-01 21:06:07: [NFTGen API] Created mock NFT record for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:06:07: [NFTGen API] Returning 1 NFTs for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:08:01: [NFTGen API] Fetching gallery for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:08:01: [NFTGen API] Found 1 NFTs in database for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:08:01: [NFTGen API] Returning 1 NFTs for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:08:35: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 21:08:35: [NFTGen API] Found 0 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 21:08:35: [NFTGen API] No NFTs found in database, checking activities
+2025-05-01 21:08:35: [NFTGen API] Found 0 mint activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 21:08:35: [NFTGen API] No activities found, creating mock NFT for better UX
+2025-05-01 21:08:35: [NFTGen API] Created mock NFT record for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 21:08:35: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 21:09:08: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 21:09:08: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 21:09:08: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 21:12:49: [NFTGen API] Fetching gallery for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:12:49: [NFTGen API] Found 1 NFTs in database for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:12:49: [NFTGen API] Returning 1 NFTs for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:16:31: [NFTGen API] Fetching gallery for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:16:31: [NFTGen API] Found 1 NFTs in database for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:16:31: [NFTGen API] Returning 1 NFTs for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:17:27: [NFTGen API] Fetching gallery for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:17:27: [NFTGen API] Found 1 NFTs in database for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:17:27: [NFTGen API] Returning 1 NFTs for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:19:29: [NFTGen API] Fetching gallery for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:19:29: [NFTGen API] Found 1 NFTs in database for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:19:29: [NFTGen API] Returning 1 NFTs for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:22:41: [NFTGen API] Fetching gallery for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:22:41: [NFTGen API] Found 1 NFTs in database for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:22:41: [NFTGen API] Returning 1 NFTs for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:25:07: [NFTGen API] Fetching gallery for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:25:07: [NFTGen API] Found 1 NFTs in database for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:25:07: [NFTGen API] Returning 1 NFTs for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 21:25:40: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-01 21:25:40: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-01 21:25:40: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-01 21:25:40: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-01 21:25:40: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-01 21:25:41: 📦 Connected to MongoDB
+2025-05-01 21:26:08: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 21:26:08: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 21:26:08: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 22:08:06: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 22:08:06: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 22:08:06: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 22:08:38: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-01 22:08:39: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-01 22:08:39: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-01 22:08:39: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-01 22:08:39: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-01 22:08:39: 📦 Connected to MongoDB
+2025-05-01 22:09:04: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-01 22:09:04: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-01 22:09:04: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-01 22:09:04: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-01 22:09:04: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-01 22:09:04: 📦 Connected to MongoDB
+2025-05-01 22:09:35: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-01 22:09:35: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-01 22:09:35: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-01 22:09:35: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-01 22:09:35: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-01 22:09:35: 📦 Connected to MongoDB
+2025-05-01 22:10:02: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 22:10:02: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 22:10:02: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 22:10:30: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 22:10:30: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 22:10:30: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 22:10:59: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-01 22:10:59: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-01 22:10:59: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-01 22:10:59: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-01 22:10:59: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-01 22:10:59: 📦 Connected to MongoDB
+2025-05-01 22:11:09: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 22:11:09: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 22:11:09: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 22:14:10: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 22:14:10: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 22:14:10: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-01 22:14:26: [NFTGen API] Fetching gallery for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 22:14:26: [NFTGen API] Found 1 NFTs in database for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 22:14:26: [NFTGen API] Returning 1 NFTs for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 22:17:31: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-01 22:17:31: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-01 22:17:31: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-01 22:17:31: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-01 22:17:31: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-01 22:17:31: 📦 Connected to MongoDB
+2025-05-01 22:18:07: [NFTGen API] Fetching gallery for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 22:18:07: [NFTGen API] Found 1 NFTs in database for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-01 22:18:07: [NFTGen API] Returning 1 NFTs for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 06:57:14: [NFTGen API] Fetching gallery for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 06:57:14: [NFTGen API] Found 1 NFTs in database for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 06:57:14: [NFTGen API] Returning 1 NFTs for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 06:58:26: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 06:58:26: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 06:58:26: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 07:05:19: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 07:05:19: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 07:05:19: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 07:05:33: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 07:05:33: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 07:05:33: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 07:05:33: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 07:05:33: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 07:05:33: 📦 Connected to MongoDB
+2025-05-02 07:05:43: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 07:05:43: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 07:05:43: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 07:05:45: [NFTGen API] Fetching gallery for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 07:05:45: [NFTGen API] Found 1 NFTs in database for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 07:05:45: [NFTGen API] Returning 1 NFTs for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 07:06:26: [NFTGen API] Fetching gallery for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 07:06:26: [NFTGen API] Found 1 NFTs in database for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 07:06:26: [NFTGen API] Returning 1 NFTs for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 07:09:02: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 07:09:02: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 07:09:02: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 07:09:17: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 07:09:17: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 07:09:17: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 07:09:17: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 07:09:17: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 07:09:17: 📦 Connected to MongoDB
+2025-05-02 07:09:28: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 07:09:28: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 07:09:28: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 07:09:33: [NFTGen API] Fetching gallery for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 07:09:33: [NFTGen API] Found 1 NFTs in database for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 07:09:33: [NFTGen API] Returning 1 NFTs for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 07:11:01: [NFTGen API] Fetching gallery for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 07:11:01: [NFTGen API] Found 1 NFTs in database for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 07:11:01: [NFTGen API] Returning 1 NFTs for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 07:12:24: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 07:12:24: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 07:12:24: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 07:12:44: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 07:12:44: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 07:12:44: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 07:12:44: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 07:12:44: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 07:12:44: 📦 Connected to MongoDB
+2025-05-02 07:12:58: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 07:12:58: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 07:12:58: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 07:13:53: [NFTGen API] Fetching gallery for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 07:13:53: [NFTGen API] Found 1 NFTs in database for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 07:13:53: [NFTGen API] Returning 1 NFTs for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 07:14:06: [NFTGen API] Fetching gallery for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 07:14:06: [NFTGen API] Found 1 NFTs in database for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 07:14:06: [NFTGen API] Returning 1 NFTs for address: 0xa3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9c5e3d9
+2025-05-02 09:31:57: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 09:31:57: [NFTGen API] Found 0 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 09:31:57: [NFTGen API] No NFTs found in database, checking activities
+2025-05-02 09:31:57: [NFTGen API] Found 0 mint activities for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 09:31:57: [NFTGen API] No activities found, creating mock NFT for better UX
+2025-05-02 09:31:57: [NFTGen API] Created mock NFT record for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 09:31:57: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 09:31:57: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 09:31:57: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 09:31:57: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 09:38:11: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 09:38:11: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 09:38:11: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 09:38:11: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 09:38:11: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 09:38:11: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 09:39:30: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 09:39:30: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 09:39:30: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 09:39:31: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 09:39:31: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 09:39:31: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 10:21:37: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 10:21:37: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 10:21:37: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 10:24:30: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 10:24:30: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 10:24:30: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 10:24:30: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 10:24:30: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 10:24:30: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 10:24:40: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 10:24:40: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 10:24:40: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-02 10:33:09: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 10:33:09: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 10:33:09: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 10:33:40: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 10:33:40: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 10:33:40: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 10:33:40: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 10:33:40: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 10:33:40: 📦 Connected to MongoDB
+2025-05-02 10:33:48: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 10:33:48: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 10:33:48: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 10:33:54: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 10:33:54: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 10:33:54: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:14:48: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:14:48: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:14:48: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:16:53: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:16:53: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:16:53: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:17:17: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 11:17:17: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 11:17:17: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 11:17:17: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 11:17:17: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 11:17:17: 📦 Connected to MongoDB
+2025-05-02 11:17:26: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:17:26: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:17:26: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:17:39: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:17:39: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:17:39: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:19:02: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:19:02: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:19:02: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:45:03: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 11:45:03: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 11:45:03: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 11:45:03: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 11:45:03: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 11:45:03: 📦 Connected to MongoDB
+2025-05-02 11:46:59: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:46:59: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:46:59: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:47:28: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 11:47:28: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 11:47:28: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 11:47:28: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 11:47:28: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 11:47:28: 📦 Connected to MongoDB
+2025-05-02 11:47:38: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:47:38: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:47:38: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:47:50: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:47:50: [NFTGen API] Returning 3 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:49:04: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:49:04: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:49:04: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:49:04: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 11:49:04: [NFTGen API] Returning 4 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:16:10: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:16:10: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:16:10: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:17:05: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:17:05: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:17:05: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:23:54: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 12:23:54: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 12:23:54: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 12:23:54: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 12:23:54: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 12:23:54: 📦 Connected to MongoDB
+2025-05-02 12:24:06: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:24:06: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:24:06: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:24:27: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:24:27: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:24:27: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:25:28: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:25:28: [NFTGen API] Returning 4 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:25:56: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 12:25:56: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 12:25:56: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 12:25:56: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 12:25:56: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 12:25:57: 📦 Connected to MongoDB
+2025-05-02 12:26:21: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 12:26:21: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 12:26:21: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 12:26:21: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 12:26:21: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 12:26:21: 📦 Connected to MongoDB
+2025-05-02 12:26:58: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:26:58: [NFTGen API] Returning 3 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:30:39: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:30:39: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:30:39: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:30:39: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:30:39: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:31:55: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:31:55: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:31:55: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:36:27: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 12:36:27: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 12:36:27: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 12:36:27: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 12:36:27: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 12:36:28: 📦 Connected to MongoDB
+2025-05-02 12:36:50: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:36:50: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:36:50: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:37:11: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 12:37:11: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 12:37:11: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 12:37:11: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 12:37:11: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 12:37:11: 📦 Connected to MongoDB
+2025-05-02 12:37:20: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:37:20: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:37:20: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:37:25: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:37:25: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:37:25: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:37:44: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:37:44: [NFTGen API] Returning 3 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:39:34: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:39:34: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:39:34: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:39:34: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:39:34: [NFTGen API] Returning 4 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:47:55: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 12:47:55: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 12:47:55: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 12:47:55: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 12:47:55: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 12:47:55: 📦 Connected to MongoDB
+2025-05-02 12:48:20: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 12:48:20: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 12:48:20: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 12:48:20: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 12:48:20: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 12:48:20: 📦 Connected to MongoDB
+2025-05-02 12:48:44: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 12:48:44: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 12:48:44: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 12:48:44: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 12:48:44: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 12:48:44: 📦 Connected to MongoDB
+2025-05-02 12:49:17: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 12:49:17: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 12:49:17: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 12:49:17: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 12:49:17: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 12:49:18: 📦 Connected to MongoDB
+2025-05-02 12:49:45: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 12:49:45: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 12:49:45: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 12:49:45: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 12:49:45: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 12:49:45: 📦 Connected to MongoDB
+2025-05-02 12:50:34: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 12:50:34: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 12:50:34: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 12:50:34: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 12:50:34: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 12:50:34: 📦 Connected to MongoDB
+2025-05-02 12:50:57: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:50:57: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:50:57: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:51:18: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:51:18: [NFTGen API] Returning 4 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:52:09: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:52:09: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:52:09: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:52:10: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:52:10: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:56:08: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:56:08: [NFTGen API] Returning 3 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:56:08: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:56:08: [NFTGen API] Returning 3 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:56:40: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:56:40: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:56:40: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:56:40: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:56:40: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 12:56:40: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 13:01:43: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 13:01:43: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 13:01:43: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 13:01:43: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 13:01:43: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 13:01:43: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 13:02:30: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 13:02:30: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 13:02:30: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 13:02:30: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 13:02:30: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 13:02:30: 📦 Connected to MongoDB
+2025-05-02 13:02:52: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 13:02:52: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 13:02:52: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 13:02:52: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 13:02:52: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 13:02:52: 📦 Connected to MongoDB
+2025-05-02 13:03:21: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 13:03:21: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 13:03:21: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 13:03:21: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 13:03:21: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 13:03:21: 📦 Connected to MongoDB
+2025-05-02 13:03:43: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 13:03:43: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 13:03:43: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 13:04:35: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 13:04:35: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 13:04:36: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 13:04:36: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 13:04:36: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 13:04:36: 📦 Connected to MongoDB
+2025-05-02 13:04:59: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 13:04:59: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 13:04:59: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 14:36:24: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 14:36:24: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 14:36:24: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 14:40:01: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 14:40:01: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 14:40:02: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 14:40:02: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 14:40:02: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 14:40:02: 📦 Connected to MongoDB
+2025-05-02 14:48:34: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 14:48:34: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 14:48:34: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 14:48:34: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 14:48:34: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 14:48:34: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 14:49:57: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 14:49:57: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 14:49:57: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 14:49:57: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 14:49:57: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 14:49:57: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 15:22:28: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 15:22:28: [NFTGen API] Returning 3 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 15:22:28: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 15:22:28: [NFTGen API] Returning 4 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:22:36: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:22:36: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:23:42: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:23:42: [NFTGen API] Returning 4 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:24:04: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:24:04: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:24:48: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:24:48: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:25:46: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:25:46: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:26:43: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:26:43: [NFTGen API] Returning 3 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:27:47: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 16:27:47: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 16:27:47: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 16:27:47: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 16:27:47: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 16:27:47: 📦 Connected to MongoDB
+2025-05-02 16:29:49: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:29:49: [NFTGen API] Returning 4 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:29:50: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:29:50: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:30:57: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:30:57: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:30:58: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:30:58: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:31:34: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:31:34: [NFTGen API] Returning 4 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:31:34: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:31:34: [NFTGen API] Returning 3 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:42:10: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:42:10: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:42:10: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:42:11: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:42:11: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:42:11: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:44:19: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:44:19: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:44:19: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:44:19: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:44:19: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:44:19: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:54:29: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:54:29: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:54:29: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:54:30: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:54:30: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:54:30: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:56:01: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:56:01: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:56:01: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:56:02: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:56:02: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:56:02: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:56:56: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:56:56: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:56:56: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:56:57: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:56:57: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 16:56:57: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 17:01:53: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 17:01:53: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 17:01:53: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 17:01:54: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 17:01:54: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 17:01:54: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 17:05:43: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 17:05:43: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 17:05:43: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 17:05:44: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 17:05:44: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 17:05:44: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 17:06:28: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 17:06:28: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 17:06:28: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 17:06:28: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 17:06:28: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 17:06:28: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:52:05: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:52:05: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:52:05: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:52:06: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:52:06: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:52:06: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:52:12: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:52:12: [NFTGen API] Returning 4 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:52:12: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:52:12: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:53:57: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:53:57: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:53:58: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:53:58: [NFTGen API] Returning 3 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:54:31: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:54:31: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:54:31: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:54:31: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:54:55: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:54:55: [NFTGen API] Returning 4 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:54:55: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 18:54:55: [NFTGen API] Returning 4 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:01:16: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:01:16: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:01:16: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:01:16: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:01:16: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:01:16: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:03:18: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:03:18: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:03:18: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:03:19: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:03:19: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:03:19: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:05:48: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:05:48: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:05:48: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:05:48: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:05:48: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:05:48: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:06:28: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:06:28: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:06:28: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:06:29: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:06:29: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:06:29: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:25:10: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:25:10: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:25:10: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:29:48: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:29:48: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:29:48: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:29:49: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:29:49: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:29:49: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:31:33: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:31:33: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:31:33: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:31:34: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:31:34: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:31:34: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:50:31: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 19:50:31: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 19:50:31: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 19:50:31: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 19:50:31: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 19:50:32: 📦 Connected to MongoDB
+2025-05-02 19:51:24: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 19:51:24: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 19:51:24: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 19:51:24: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 19:51:24: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 19:51:24: 📦 Connected to MongoDB
+2025-05-02 19:51:56: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 19:51:56: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 19:51:56: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 19:51:56: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 19:51:56: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 19:51:56: 📦 Connected to MongoDB
+2025-05-02 19:52:17: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 19:52:17: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 19:52:17: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 19:52:17: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 19:52:17: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 19:52:17: 📦 Connected to MongoDB
+2025-05-02 19:52:34: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-02 19:52:34: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-02 19:52:35: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-02 19:52:35: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-02 19:52:35: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-02 19:52:35: 📦 Connected to MongoDB
+2025-05-02 19:52:54: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:52:54: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:52:54: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:53:36: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:53:36: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:53:36: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:53:43: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:53:43: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:53:44: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:53:44: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:53:57: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:53:57: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:53:57: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:53:58: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:53:58: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:53:58: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:55:50: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:55:50: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:55:50: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:55:51: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:55:51: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:55:51: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:56:03: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:56:03: [NFTGen API] Returning 4 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:56:04: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-02 19:56:04: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 00:07:07: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 00:07:07: [NFTGen API] Returning 4 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 00:07:15: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 00:07:15: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 00:07:15: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 00:07:15: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 00:07:15: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 00:07:15: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:51:58: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:51:58: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:51:58: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:51:59: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:51:59: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:51:59: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:54:34: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:54:34: [NFTGen API] Returning 3 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:54:34: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:54:34: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:54:43: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:54:43: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:54:43: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:54:44: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:54:44: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:54:44: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:54:46: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:54:46: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:54:47: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:54:47: [NFTGen API] Returning 4 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:58:00: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 01:58:00: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:16:33: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:16:33: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:16:33: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:16:34: [NFTGen API] Fetching gallery for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:16:34: [NFTGen API] Found 1 NFTs in database for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:16:34: [NFTGen API] Returning 1 NFTs for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:21:20: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:21:20: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:21:20: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:21:20: [NFTGen API] Returning 3 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:24:49: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:24:49: [NFTGen API] Returning 3 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:25:17: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:25:17: [NFTGen API] Returning 4 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:26:12: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:26:12: [NFTGen API] Returning 4 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:26:13: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:26:13: [NFTGen API] Returning 3 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:26:29: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:26:29: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:26:29: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:26:29: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:26:43: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:26:43: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:26:43: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:26:43: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:28:03: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:28:03: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:31:30: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:31:30: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:31:31: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:31:31: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:32:01: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:32:01: [NFTGen API] Returning 3 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:32:02: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:32:02: [NFTGen API] Returning 4 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:32:45: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:32:45: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:32:45: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:32:45: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:35:15: [NFTGen API] Generating mock history for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 02:35:15: [NFTGen API] Returning 2 mock activities for address: 0x0403B0546B6aA4a25A01B60b96085E3a82189B8a
+2025-05-03 03:32:23: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-03 03:32:23: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-03 03:32:24: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-03 03:32:24: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-03 03:32:24: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-03 03:32:24: 📦 Connected to MongoDB
+2025-05-03 03:32:54: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-03 03:32:54: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-03 03:32:55: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-03 03:32:55: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-03 03:32:55: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-03 03:32:55: 📦 Connected to MongoDB
+2025-05-03 03:33:07: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-03 03:33:07: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-03 03:33:07: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-03 03:33:07: 🚀 GraphQL endpoint at http://0.0.0.0:7102/graphql
+2025-05-03 03:33:07: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-03 03:33:07: 📦 Connected to MongoDB
+2025-05-03 03:33:38: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-03 03:33:38: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-03 03:33:38: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-03 03:33:38: 🚀 GraphQL endpoint at http://0.0.0.0:7102undefined
+2025-05-03 03:33:38: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-03 03:33:38: 📦 Connected to MongoDB
+2025-05-03 03:33:52: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-03 03:33:52: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-03 03:33:52: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-03 03:33:52: 🚀 GraphQL endpoint at http://0.0.0.0:7102undefined
+2025-05-03 03:33:52: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-03 03:33:52: 📦 Connected to MongoDB
+2025-05-03 03:36:14: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-03 03:36:14: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-03 03:36:14: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-03 03:36:14: 🚀 GraphQL endpoint at http://0.0.0.0:7102undefined
+2025-05-03 03:36:14: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-03 03:36:14: 📦 Connected to MongoDB
+2025-05-03 03:36:51: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-03 03:36:51: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-03 03:36:51: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-03 03:36:51: 🚀 GraphQL endpoint at http://0.0.0.0:7102undefined
+2025-05-03 03:36:51: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-03 03:36:51: 📦 Connected to MongoDB
+2025-05-03 03:37:25: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-03 03:37:25: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-03 03:37:25: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-03 03:37:25: 🚀 GraphQL endpoint at http://0.0.0.0:7102undefined
+2025-05-03 03:37:25: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-03 03:37:25: 📦 Connected to MongoDB
+2025-05-03 03:37:46: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-03 03:37:46: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-03 03:37:46: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-03 03:37:46: 🚀 GraphQL endpoint at http://0.0.0.0:7102undefined
+2025-05-03 03:37:46: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-03 03:37:46: 📦 Connected to MongoDB
+2025-05-03 03:37:59: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-03 03:37:59: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-03 03:37:59: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-03 03:37:59: 🚀 GraphQL endpoint at http://0.0.0.0:7102undefined
+2025-05-03 03:37:59: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-03 03:37:59: 📦 Connected to MongoDB
+2025-05-03 04:25:09: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-03 04:25:09: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-03 04:25:09: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-03 04:25:09: 🚀 GraphQL endpoint at http://0.0.0.0:7102undefined
+2025-05-03 04:25:09: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-03 04:25:09: 📦 Connected to MongoDB
+2025-05-03 04:32:00: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-03 04:32:00: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-03 04:32:00: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-03 04:32:00: 🚀 GraphQL endpoint at http://0.0.0.0:7102undefined
+2025-05-03 04:32:00: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-03 04:32:00: 📦 Connected to MongoDB
+2025-05-03 04:33:42: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-03 04:33:42: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-03 04:33:42: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-03 04:33:42: 🚀 GraphQL endpoint at http://0.0.0.0:7102undefined
+2025-05-03 04:33:42: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-03 04:33:42: 📦 Connected to MongoDB
+2025-05-03 06:46:57: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 06:46:57: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 06:46:57: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 06:46:57: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 06:46:57: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 06:46:57: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 08:59:38: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 08:59:38: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 08:59:38: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 08:59:39: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 08:59:39: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 08:59:39: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 09:01:54: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 09:01:54: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 09:01:54: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 09:01:55: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 09:01:55: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 09:01:55: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 09:24:07: [NFTGen API] Generating mock history for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 09:24:07: [NFTGen API] Returning 2 mock activities for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 09:24:07: [NFTGen API] Generating mock history for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 09:24:07: [NFTGen API] Returning 2 mock activities for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 09:24:48: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 09:24:48: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 09:24:48: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 09:24:48: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 09:24:48: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-03 09:24:48: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:36:07: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:36:07: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:36:07: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:36:08: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:36:08: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:36:08: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:36:11: [NFTGen API] Generating mock history for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:36:11: [NFTGen API] Returning 4 mock activities for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:36:11: [NFTGen API] Generating mock history for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:36:11: [NFTGen API] Returning 4 mock activities for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:36:52: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:36:52: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:36:52: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:36:53: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:36:53: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:36:53: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:37:04: [NFTGen API] Generating mock history for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:37:04: [NFTGen API] Returning 3 mock activities for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:37:05: [NFTGen API] Generating mock history for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:37:05: [NFTGen API] Returning 3 mock activities for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:37:45: [NFTGen API] Generating mock history for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 11:37:45: [NFTGen API] Returning 3 mock activities for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 14:19:50: [NFTGen API] Generating mock history for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 14:19:50: [NFTGen API] Returning 4 mock activities for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 16:14:50: [NFTGen API] Generating mock history for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 16:14:50: [NFTGen API] Returning 3 mock activities for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-04 17:13:37: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-04 17:13:37: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-04 17:13:37: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-04 17:13:37: 🚀 GraphQL endpoint at http://0.0.0.0:7102undefined
+2025-05-04 17:13:37: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-04 17:13:37: 📦 Connected to MongoDB
+2025-05-04 17:15:01: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-04 17:15:01: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-04 17:15:01: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-04 17:15:01: 🚀 GraphQL endpoint at http://0.0.0.0:7102undefined
+2025-05-04 17:15:01: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-04 17:15:01: 📦 Connected to MongoDB
+2025-05-04 18:46:38: [NFTGen API] Owner Signer Initialized: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+2025-05-04 18:46:38: [NFTGen API] Contract Instance Initialized: 0x7C48738789A79FAb8DD3Ed0E787A9456262E928A
+2025-05-04 18:46:38: 🚀 Server ready at http://0.0.0.0:7102
+2025-05-04 18:46:38: 🚀 GraphQL endpoint at http://0.0.0.0:7102undefined
+2025-05-04 18:46:38: 🚀 REST API endpoints available at http://0.0.0.0:7102/api/nft/*
+2025-05-04 18:46:38: 📦 Connected to MongoDB
+2025-05-05 08:26:24: [NFTGen API] Generating mock history for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-05 08:26:24: [NFTGen API] Returning 2 mock activities for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-05 10:22:15: [NFTGen API] Generating mock history for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-05 10:22:15: [NFTGen API] Returning 4 mock activities for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-05 10:22:41: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-05 10:22:41: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-05 10:22:41: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-05 10:22:42: [NFTGen API] Fetching gallery for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-05 10:22:42: [NFTGen API] Found 1 NFTs in database for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd
+2025-05-05 10:22:42: [NFTGen API] Returning 1 NFTs for address: 0xfE48d81D3b07540A133971f6A3d65cf04089e2Bd

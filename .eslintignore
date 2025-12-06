@@ -1,0 +1,39 @@
+# Build output
+dist/
+build/
+public/
+
+# Node modules
+node_modules/
+
+# API server (uses CommonJS)
+api/
+api/**/*.js
+
+# Test files
+test-*.js
+verify-integration.js
+*.test.js
+*.spec.js
+
+# Configuration files
+*.config.js
+*.config.cjs
+*.config.mjs
+start-frontend.js
+check-network.mjs
+vite.config.js
+
+# WebSocket server
+websocket/
+websocket/**/*.js
+
+# Generated files
+*.d.ts
+
+# Third-party libraries
+src/lib/ipfs-handlers.js
+src/utils/ipfs-utils.js
+src/utils/ipfs-utils-wrapper.js
+src/utils/nftContract.js
+src/utils/pinata.js

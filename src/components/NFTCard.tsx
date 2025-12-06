@@ -3,6 +3,7 @@ import { GlassCard } from './GlassCard';
 import { NFT } from '../types';
 import { ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getGatewayUrl } from '../utils/ipfs-adapter';
 
 interface NFTCardProps {
   nft: NFT;
@@ -17,7 +18,24 @@ interface FractionData {
 
 export const NFTCard: React.FC<NFTCardProps> = ({ nft }) => {
   const etherscanUrl = `https://etherscan.io/token/${nft.id}`;
-  const ipfsUrl = nft.image.replace('ipfs://', 'https://ipfs.io/ipfs/');
+  
+  // Use the ipfs-adapter to properly handle all IPFS URL formats
+  const getImageUrl = (): string => {
+    if (!nft.image) return '/placeholder-nft.png'; // Default placeholder
+    
+    // Handle data:image URLs
+    if (nft.image.startsWith('data:image/')) {
+      return nft.image;
+    }
+    
+    // Handle IPFS URLs using our adapter
+    if (nft.image.startsWith('ipfs://') || nft.image.includes('/ipfs/')) {
+      return getGatewayUrl(nft.image);
+    }
+    
+    // Return as is for regular HTTP URLs
+    return nft.image;
+  };
 
   const formatPrice = (price: string | number): string => {
     return typeof price === 'string' ? parseFloat(price).toFixed(4) : price.toFixed(4);
@@ -62,9 +80,13 @@ export const NFTCard: React.FC<NFTCardProps> = ({ nft }) => {
     <GlassCard className="overflow-hidden group">
       <div className="aspect-square overflow-hidden relative">
         <img
-          src={ipfsUrl}
+          src={getImageUrl()}
           alt={nft.name}
           className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
+          onError={(e) => {
+            // Fallback image if the main one fails to load
+            (e.target as HTMLImageElement).src = '/placeholder-nft.png';
+          }}
         />
         {nft.status?.toLowerCase() === 'fractionalized' && (
           <div className="absolute top-2 right-2">

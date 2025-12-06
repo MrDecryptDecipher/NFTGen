@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { nftService } from '../services/nftService';
+import nftService from '../services/nftService';
 
 interface NFTCreatorProps {
   onSuccess?: (txHash: string) => void;
@@ -41,17 +41,36 @@ export const NFTCreator: React.FC<NFTCreatorProps> = ({
     };
   }, [currentTx, onSuccess, onError]);
 
-  const handleCreate = async (metadata: any) => {
+  const handleCreate = async (metadata: { name: string; description: string; imageFile: File; attributes?: Array<{ trait_type: string; value: string | number }> }) => {
     try {
       setIsCreating(true);
       setError('');
       setProgress('Initializing...');
 
-      const txHash = await nftService.createNFT(metadata, (status) => {
+      // Get user address for recipient
+      const userSession = localStorage.getItem('nija_wallet_session') || localStorage.getItem('nftgen_nwallet_session');
+      const recipientAddress = userSession ? JSON.parse(userSession).address : '0x56866D43dC757b3F683cF35d300f2Bc0d1A8A1BD';
+
+      const createNFTParams = {
+        name: metadata.name,
+        description: metadata.description,
+        imageFile: metadata.imageFile,
+        attributes: metadata.attributes?.map(attr => ({
+          trait_type: attr.trait_type,
+          value: String(attr.value) // Convert to string
+        })),
+        recipientAddress
+      };
+
+      const result = await nftService.createNFT(createNFTParams, (status) => {
         setProgress(status);
       });
 
-      setCurrentTx(txHash);
+      if (result.success && result.transactionHash) {
+        setCurrentTx(result.transactionHash);
+      } else {
+        throw new Error(result.error || 'Failed to create NFT');
+      }
       setProgress('Transaction submitted, waiting for confirmation...');
 
     } catch (error) {
@@ -101,10 +120,19 @@ export const NFTCreator: React.FC<NFTCreatorProps> = ({
         <form className="space-y-4" onSubmit={(e) => {
           e.preventDefault();
           const formData = new FormData(e.currentTarget);
+          const name = formData.get('name') as string || '';
+          const description = formData.get('description') as string || '';
+          const imageFile = formData.get('image') as File;
+
+          if (!name || !description || !imageFile) {
+            setError('Please fill in all required fields');
+            return;
+          }
+
           handleCreate({
-            name: formData.get('name'),
-            description: formData.get('description'),
-            image: formData.get('image'),
+            name,
+            description,
+            imageFile,
             attributes: []
           });
         }}>

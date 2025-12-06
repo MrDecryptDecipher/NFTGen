@@ -1,0 +1,54 @@
+// API configuration
+export const API_BASE_URL = 'http://3.111.22.56:5177';
+
+// NFT API configuration 
+export const NFT_API_BASE_URL = process.env.REACT_APP_API_URL || process.env.VITE_API_URL || 'http://3.111.22.56:5174';
+
+// WebSocket configuration
+export const WS_BASE_URL = 'ws://3.111.22.56:5176';
+
+// NFT contract configuration
+export const NFT_FRACTIONALIZATION_ADDRESS = '0x...'; // Replace with actual contract address
+export const NFT_FRACTIONALIZATION_ABI = [
+  // Fractionalize function
+  {
+    inputs: [
+      { name: 'nftId', type: 'string' },
+      { name: 'supply', type: 'uint256' },
+      { name: 'pricePerFraction', type: 'uint256' },
+      { name: 'minimumPurchase', type: 'uint256' }
+    ],
+    name: 'fractionalize',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  // Buy fractions function
+  {
+    inputs: [
+      { name: 'nftId', type: 'string' },
+      { name: 'amount', type: 'uint256' }
+    ],
+    name: 'buyFractions',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function'
+  },
+  // Get fraction details function
+  {
+    inputs: [{ name: 'nftId', type: 'string' }],
+    name: 'getFractionDetails',
+    outputs: [
+      { name: 'supply', type: 'uint256' },
+      { name: 'pricePerFraction', type: 'uint256' },
+      { name: 'minimumPurchase', type: 'uint256' },
+      { name: 'availableFractions', type: 'uint256' }
+    ],
+    stateMutability: 'view',
+    type: 'function'
+  }
+];
+
+// Update the base URLs to point to the Nwallet server
+export const NFT_WS_URL = process.env.REACT_APP_WS_URL || process.env.VITE_WS_URL || 'ws://3.111.22.56:5176';
+export const WALLET_API_URL = process.env.REACT_APP_WALLET_API_URL || process.env.VITE_WALLET_API_URL || 'http://3.111.22.56:5174/api'; 

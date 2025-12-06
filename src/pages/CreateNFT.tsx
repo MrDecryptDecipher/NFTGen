@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useNFT } from '../context/NFTContext';
-import { useWallet } from '../context/WalletContext';
+import { useNwallet } from '../contexts/NwalletContext';
+import { useAuth } from '../hooks/useAuth';
 import { toast } from 'react-toastify';
 import {
   Box,
@@ -9,26 +9,36 @@ import {
   Typography,
   TextField,
   Button,
-  Switch,
-  FormControlLabel,
-  Slider,
   Paper,
   Grid,
   CircularProgress,
   Card,
   CardMedia,
   CardContent,
-  Theme,
+  LinearProgress,
+  Alert,
+  IconButton,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
+import { CloudUpload, Delete, Add } from '@mui/icons-material';
+import { FundNFTGen } from '../components/FundNFTGen';
 
-const DropzoneArea = styled(Paper)(({ theme }: { theme: Theme }) => ({
+// Styled components
+const DropzoneArea = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
   textAlign: 'center',
   cursor: 'pointer',
   backgroundColor: theme.palette.background.paper,
   border: `3px dashed ${theme.palette.primary.main}`,
   transition: 'all 0.3s ease-in-out',
+  position: 'relative',
+  zIndex: 1,
+  minHeight: '200px',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
   '&:hover': {
     backgroundColor: theme.palette.background.default,
     borderColor: theme.palette.secondary.main,
@@ -40,359 +50,421 @@ const DropzoneArea = styled(Paper)(({ theme }: { theme: Theme }) => ({
     borderWidth: '3px',
     transform: 'scale(1.05)',
   },
+  '& input': {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    opacity: 0,
+    cursor: 'pointer',
+    zIndex: 2,
+  },
 }));
 
-const PreviewCard = styled(Card)(({ theme }: { theme: Theme }) => ({
+const PreviewCard = styled(Card)(({ theme }) => ({
   maxWidth: 400,
   margin: '0 auto',
   height: '100%',
 }));
 
+interface NFTAttribute {
+  trait_type: string;
+  value: string;
+}
+
+interface CreationProgress {
+  stage: string;
+  progress: number;
+  message: string;
+}
+
 const CreateNFT: React.FC = () => {
-  const {
-    isProMode,
-    setIsProMode,
-    nftImage,
-    setNftImage,
-    nftMetadata,
-    setNftMetadata,
-    royalties,
-    setRoyalties,
-    fractions,
-    setFractions,
-    isMinting,
-    mintNFT,
-    previewUrl,
-    setPreviewUrl,
-  } = useNFT();
+  const navigate = useNavigate();
 
-  const { isConnected } = useWallet();
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  // Use centralized authentication service
+  const { isAuthenticated, walletAddress, isLoading: authLoading, error: authError } = useAuth();
 
-  useEffect(() => {
-    console.log('CreateNFT component initialized');
-    console.log('Dropzone setup with options:', {
-      accept: {
-        'image/jpeg': ['.jpg', '.jpeg'],
-        'image/png': ['.png'],
-      },
-      maxFiles: 1,
-      multiple: false,
-    });
-    
-    console.log('Wallet connection status:', isConnected);
-    
-    return () => {
-      console.log('CreateNFT component unmounting');
-    };
-  }, [isConnected]);
+  const nwalletAddress = walletAddress;
 
-  const processFile = (file: File) => {
+  // State variables
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [nftName, setNftName] = useState('');
+  const [nftDescription, setNftDescription] = useState('');
+  const [attributes, setAttributes] = useState<NFTAttribute[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [creationProgress, setCreationProgress] = useState<CreationProgress | null>(null);
+
+  // File processing
+  const processFile = useCallback((file: File) => {
     console.log("Processing file:", file.name, "Size:", file.size, "Type:", file.type);
-    toast.info(`Processing file: ${file.name}`);
     
-    if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
-      toast.error('Please upload a JPG or PNG file');
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
       return;
     }
-    
-    setNftImage(file);
-    
+
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      toast.error('File size must be less than 10MB');
+      return;
+    }
+
+    setSelectedFile(file);
+
     const reader = new FileReader();
     reader.onload = () => {
-      console.log("File read successfully, updating preview");
       setPreviewUrl(reader.result as string);
       toast.success("Image uploaded successfully!");
     };
     reader.onerror = () => {
-      console.error("FileReader error");
       toast.error("Error reading file");
     };
     reader.readAsDataURL(file);
-  };
+  }, []);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    console.log("Files dropped:", acceptedFiles.length);
+    console.log('Files dropped:', acceptedFiles.length);
     const file = acceptedFiles[0];
     if (file) {
+      console.log('Processing dropped file:', file.name);
       processFile(file);
+    } else {
+      console.log('No valid file dropped');
     }
-  }, [setNftImage, setPreviewUrl]);
+  }, [processFile]);
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
     accept: {
-      'image/jpeg': ['.jpg', '.jpeg'],
-      'image/png': ['.png'],
+      'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp']
     },
     maxFiles: 1,
     multiple: false,
     noClick: false,
+    noKeyboard: false,
   });
 
-  const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      processFile(files[0]);
+  // Fallback click handler
+  const handleUploadClick = useCallback((e?: React.MouseEvent) => {
+    console.log('Upload area clicked - opening file dialog');
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
     }
-  };
-
-  const handleManualUpload = () => {
-    console.log("Manual upload button clicked");
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    } else {
+    try {
       open();
+      console.log('File dialog opened successfully');
+    } catch (error) {
+      console.error('Error opening file dialog:', error);
+      toast.error('Error opening file dialog. Please try again.');
+    }
+  }, [open]);
+
+  // Attribute management
+  const addAttribute = () => {
+    setAttributes([...attributes, { trait_type: '', value: '' }]);
+  };
+
+  const removeAttribute = (index: number) => {
+    setAttributes(attributes.filter((_, i) => i !== index));
+  };
+
+  const updateAttribute = (index: number, field: keyof NFTAttribute, value: string) => {
+    const newAttributes = [...attributes];
+    newAttributes[index][field] = value;
+    setAttributes(newAttributes);
+  };
+
+  // NFT Creation
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!selectedFile) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    if (!nftName.trim()) {
+      toast.error('Please enter an NFT name');
+      return;
+    }
+
+    if (!isAuthenticated || !nwalletAddress) {
+      toast.error('Please authenticate with Nwallet first');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Import the NFT service
+      const { createNFTWithToasts, validateNFTParams } = await import('../services/nftService');
+
+      // Prepare NFT creation parameters
+      const nftParams = {
+        name: nftName,
+        description: nftDescription,
+        imageFile: selectedFile,
+        attributes: attributes.filter(attr => attr.trait_type && attr.value),
+        recipientAddress: nwalletAddress, // This will be overridden by the service to use the connected address
+        amount: 1
+      };
+
+      console.log('Creating NFT for connected address:', nwalletAddress);
+
+      // Validate parameters
+      const validationErrors = validateNFTParams(nftParams);
+      if (validationErrors.length > 0) {
+        throw new Error(validationErrors.join(', '));
+      }
+
+      // Create NFT using the integrated service (it handles progress internally with toasts)
+      const result = await createNFTWithToasts(nftParams);
+
+      if (result.success) {
+        console.log('NFT created successfully:', result);
+
+        // Reset form
+        setSelectedFile(null);
+        setPreviewUrl(null);
+        setNftName('');
+        setNftDescription('');
+        setAttributes([]);
+
+        // Navigate to gallery after a short delay
+        setTimeout(() => {
+          navigate('/gallery');
+        }, 2000);
+      } else {
+        throw new Error(result.error || 'NFT creation failed');
+      }
+
+    } catch (error: any) {
+      console.error('NFT creation failed:', error);
+      setError(error.message);
+      toast.error(`NFT creation failed: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+      setCreationProgress(null);
     }
   };
-
-  const handleTestUpload = () => {
-    console.log("Testing file upload with generated image");
-    
-    // Create a small red square image as base64
-    const base64Image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAABVJREFUOI1jYBgFo2AUjIJRMAroAAAEiAABLN8/7QAAAABJRU5ErkJggg==";
-    
-    // Convert base64 to blob
-    const byteString = atob(base64Image.split(',')[1]);
-    const mimeType = base64Image.split(',')[0].split(':')[1].split(';')[0];
-    const arrayBuffer = new ArrayBuffer(byteString.length);
-    const byteArray = new Uint8Array(arrayBuffer);
-    
-    for (let i = 0; i < byteString.length; i++) {
-      byteArray[i] = byteString.charCodeAt(i);
-    }
-    
-    const blob = new Blob([arrayBuffer], { type: mimeType });
-    const file = new File([blob], "test-image.png", { type: mimeType });
-    
-    // Process the file
-    toast.info("Creating test image");
-    processFile(file);
-  };
-
-  const handleMetadataChange = (field: keyof typeof nftMetadata) => (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setNftMetadata({
-      ...nftMetadata,
-      [field]: event.target.value,
-    });
-  };
-
-  const handleRoyaltiesChange = (_: Event, value: number | number[]) => {
-    setRoyalties(value as number);
-  };
-
-  const handleFractionsChange = (_: Event, value: number | number[]) => {
-    setFractions(value as number);
-  };
-
-  if (!isConnected) {
-    return (
-      <Container maxWidth="md">
-        <Box sx={{ textAlign: 'center', mt: 4 }}>
-          <Typography variant="h5" gutterBottom>
-            Please connect your wallet to create NFTs
-          </Typography>
-        </Box>
-      </Container>
-    );
-  }
 
   return (
-    <Container maxWidth="md">
-      <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom align="center">
-          Create NFT
-        </Typography>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Typography variant="h3" component="h1" gutterBottom align="center">
+        Create NFT
+      </Typography>
+      
+      <Typography variant="h6" color="text.secondary" align="center" sx={{ mb: 4 }}>
+        Turn your digital art into an NFT on Ethereum Sepolia
+      </Typography>
 
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={isProMode}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIsProMode(e.target.checked)}
-                color="primary"
-              />
-            }
-            label="Pro Mode"
-          />
-        </Box>
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
 
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={6}>
-            <DropzoneArea 
-              {...getRootProps({
-                onClick: (e) => {
-                  console.log("Dropzone clicked");
-                  e.stopPropagation();
-                  handleManualUpload();
-                }
-              })} 
+      <Grid container spacing={4}>
+        {/* Left Column - Upload and Preview */}
+        <Grid item xs={12} md={6}>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              Upload Image
+            </Typography>
+            
+            <DropzoneArea
+              {...getRootProps()}
               className={isDragActive ? 'drag-active' : ''}
+              onClick={handleUploadClick}
+              role="button"
+              tabIndex={0}
+              aria-label="Upload image file"
             >
               <input {...getInputProps()} />
+              <CloudUpload sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
               {isDragActive ? (
-                <Typography variant="h6" color="secondary">
+                <Typography variant="h6" color="primary">
                   Drop the image here...
                 </Typography>
               ) : (
-                <>
+                <Box>
                   <Typography variant="h6" gutterBottom>
-                    Upload NFT Image
+                    Drag & drop an image here
                   </Typography>
-                  <Typography variant="body1" color="textSecondary">
-                    Drag and drop an image here, or click to select
+                  <Typography variant="body1" color="primary" sx={{ fontWeight: 'bold', mb: 1 }}>
+                    or click to select a file
                   </Typography>
-                </>
-              )}
-              <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
-                Supported formats: JPG, PNG
-              </Typography>
-            </DropzoneArea>
-
-            <Box sx={{ mt: 2, textAlign: 'center', display: 'flex', justifyContent: 'center', gap: 2 }}>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/jpeg,image/png"
-                style={{ display: 'none' }}
-                onChange={handleFileInputChange}
-              />
-              <Button 
-                variant="contained" 
-                onClick={handleManualUpload}
-                size="medium"
-                color="primary"
-              >
-                Select Image File
-              </Button>
-              
-              <Button 
-                variant="outlined" 
-                onClick={handleTestUpload}
-                size="medium"
-                color="secondary"
-              >
-                Test Upload
-              </Button>
-            </Box>
-
-            <Box sx={{ mt: 3 }}>
-              <TextField
-                fullWidth
-                label="NFT Name"
-                value={nftMetadata.name}
-                onChange={handleMetadataChange('name')}
-                required
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                fullWidth
-                label="Description"
-                value={nftMetadata.description}
-                onChange={handleMetadataChange('description')}
-                multiline
-                rows={4}
-                sx={{ mb: 2 }}
-              />
-
-              {isProMode && (
-                <>
-                  <Typography gutterBottom>Royalties (%)</Typography>
-                  <Slider
-                    value={royalties}
-                    onChange={handleRoyaltiesChange}
-                    min={0}
-                    max={100}
-                    marks
-                    valueLabelDisplay="auto"
-                    sx={{ mb: 2 }}
-                  />
-                  <Typography gutterBottom>Fractions</Typography>
-                  <Slider
-                    value={fractions}
-                    onChange={handleFractionsChange}
-                    min={1}
-                    max={100}
-                    marks
-                    valueLabelDisplay="auto"
-                    sx={{ mb: 2 }}
-                  />
-                </>
-              )}
-            </Box>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <PreviewCard>
-              {previewUrl ? (
-                <>
-                  <CardMedia
-                    component="img"
-                    height="300"
-                    image={previewUrl}
-                    alt="NFT Preview"
-                  />
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      {nftMetadata.name || 'Untitled NFT'}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      {nftMetadata.description || 'No description'}
-                    </Typography>
-                    {isProMode && (
-                      <>
-                        <Typography variant="body2" sx={{ mt: 1 }}>
-                          Royalties: {royalties}%
-                        </Typography>
-                        <Typography variant="body2">
-                          Fractions: {fractions}
-                        </Typography>
-                      </>
-                    )}
-                  </CardContent>
-                </>
-              ) : (
-                <Box
-                  sx={{
-                    height: 300,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    bgcolor: 'background.default',
-                  }}
-                >
-                  <Typography color="textSecondary">
-                    Preview will appear here
+                  <Typography variant="body2" color="text.secondary">
+                    Supports PNG, JPG, GIF, WebP (max 10MB)
                   </Typography>
+                  <Button
+                    variant="outlined"
+                    startIcon={<CloudUpload />}
+                    sx={{ mt: 2 }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleUploadClick();
+                    }}
+                  >
+                    Choose File
+                  </Button>
                 </Box>
               )}
+            </DropzoneArea>
+          </Box>
+
+          {/* Preview */}
+          {previewUrl && (
+            <PreviewCard>
+              <CardMedia
+                component="img"
+                height="300"
+                image={previewUrl}
+                alt="NFT Preview"
+                sx={{ objectFit: 'contain' }}
+              />
+              <CardContent>
+                <Typography variant="body2" color="text.secondary">
+                  Preview: {selectedFile?.name}
+                </Typography>
+                <Button
+                  startIcon={<Delete />}
+                  onClick={() => {
+                    setSelectedFile(null);
+                    setPreviewUrl(null);
+                  }}
+                  color="error"
+                  size="small"
+                  sx={{ mt: 1 }}
+                >
+                  Remove
+                </Button>
+              </CardContent>
             </PreviewCard>
-          </Grid>
+          )}
         </Grid>
 
-        <Box sx={{ mt: 4, textAlign: 'center' }}>
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            onClick={mintNFT}
-            disabled={isMinting || !nftImage || !nftMetadata.name}
-          >
-            {isMinting ? (
-              <>
-                <CircularProgress size={24} sx={{ mr: 1 }} />
-                Minting...
-              </>
-            ) : (
-              'Mint NFT'
+        {/* Right Column - NFT Details */}
+        <Grid item xs={12} md={6}>
+          {/* Funding Component */}
+          <Box sx={{ mb: 3 }}>
+            <FundNFTGen onFundingComplete={() => {
+              toast.success('NFTGen funded successfully! You can now mint NFTs.');
+            }} />
+          </Box>
+
+          <Box component="form" onSubmit={handleSubmit}>
+            <TextField
+              fullWidth
+              label="NFT Name"
+              value={nftName}
+              onChange={(e) => setNftName(e.target.value)}
+              required
+              sx={{ mb: 3 }}
+            />
+
+            <TextField
+              fullWidth
+              label="Description"
+              value={nftDescription}
+              onChange={(e) => setNftDescription(e.target.value)}
+              multiline
+              rows={4}
+              sx={{ mb: 3 }}
+            />
+
+            {/* Attributes */}
+            <Box sx={{ mb: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6">Attributes</Typography>
+                <IconButton onClick={addAttribute} color="primary">
+                  <Add />
+                </IconButton>
+              </Box>
+
+              {attributes.map((attr, index) => (
+                <Box key={index} sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                  <TextField
+                    label="Trait Type"
+                    value={attr.trait_type}
+                    onChange={(e) => updateAttribute(index, 'trait_type', e.target.value)}
+                    size="small"
+                  />
+                  <TextField
+                    label="Value"
+                    value={attr.value}
+                    onChange={(e) => updateAttribute(index, 'value', e.target.value)}
+                    size="small"
+                  />
+                  <IconButton onClick={() => removeAttribute(index)} color="error">
+                    <Delete />
+                  </IconButton>
+                </Box>
+              ))}
+            </Box>
+
+            {/* Progress */}
+            {creationProgress && (
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="body2" gutterBottom>
+                  {creationProgress.message}
+                </Typography>
+                <LinearProgress 
+                  variant="determinate" 
+                  value={creationProgress.progress} 
+                  sx={{ mb: 1 }}
+                />
+                <Typography variant="caption" color="text.secondary">
+                  {creationProgress.progress}% complete
+                </Typography>
+              </Box>
             )}
-          </Button>
-        </Box>
-      </Box>
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              variant="contained"
+              size="large"
+              fullWidth
+              disabled={isLoading || !selectedFile || !nftName.trim()}
+              startIcon={isLoading ? <CircularProgress size={20} /> : null}
+            >
+              {isLoading ? 'Creating NFT...' : 'Create NFT'}
+            </Button>
+
+            {/* Authentication Status */}
+            {authLoading && (
+              <Alert severity="info" sx={{ mt: 2 }}>
+                Checking authentication status...
+              </Alert>
+            )}
+
+            {authError && (
+              <Alert severity="error" sx={{ mt: 2 }}>
+                Authentication Error: {authError}
+              </Alert>
+            )}
+
+            {isAuthenticated && nwalletAddress && (
+              <Alert severity="success" sx={{ mt: 2 }}>
+                ✅ Authenticated - Connected to: {nwalletAddress}
+              </Alert>
+            )}
+
+            {!isAuthenticated && !authLoading && (
+              <Alert severity="warning" sx={{ mt: 2 }}>
+                ⚠️ Please authenticate with Nwallet to create NFTs
+              </Alert>
+            )}
+          </Box>
+        </Grid>
+      </Grid>
     </Container>
   );
 };
 
-export default CreateNFT; 
+export default CreateNFT;

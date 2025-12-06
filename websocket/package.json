@@ -1,0 +1,13 @@
+{
+  "name": "nftgen-websocket",
+  "version": "1.0.0",
+  "description": "WebSocket server for NFTGen platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.13.0",
+    "uuid": "^9.0.0"
+  }
+}

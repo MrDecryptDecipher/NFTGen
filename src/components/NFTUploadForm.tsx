@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, Image as ImageIcon, Loader2, Plus, Minus, X } from 'lucide-react';
+import { Upload, Image as ImageIcon, Loader2, Plus, X } from 'lucide-react';
 import { GlassCard } from './GlassCard';
 import { toast } from 'react-toastify';
 import { NFTUploadFormData } from '../types';
@@ -63,10 +63,56 @@ export const NFTUploadForm: React.FC<NFTUploadFormProps> = ({ onSubmit, isUpload
       return;
     }
 
-    if (!isConnected) {
-      toast.error('Please connect your wallet first');
+    // Always get the current session from localStorage first
+    const { getNwalletSession, connectToNwallet } = await import('../providers/NwalletProvider');
+    let currentSession = getNwalletSession();
+    let userAddress = currentSession?.address || address;
+
+    if (!userAddress || !isConnected) {
+      try {
+        // Show a message to the user
+        toast.info("Connecting to Nwallet...");
+
+        // Try to connect to Nwallet
+        const walletAddress = await connectToNwallet();
+
+        if (!walletAddress) {
+          // If connection fails, show a clear error message
+          toast.error("Unable to connect to Nwallet. Please make sure Nwallet is running and try again.");
+          return;
+        }
+
+        // Get the session to verify it was created
+        currentSession = getNwalletSession();
+        if (!currentSession) {
+          toast.error("Failed to create wallet session. Please try again.");
+          return;
+        }
+
+        userAddress = currentSession.address;
+
+        // Force localStorage update event
+        window.dispatchEvent(new Event('storage'));
+
+        // Inform the user of success
+        toast.success("Connected to Nwallet successfully");
+
+        // Wait for the session to be processed
+        await new Promise(resolve => setTimeout(resolve, 500));
+      } catch (error) {
+        console.error("[NFTUploadForm] Error connecting to Nwallet:", error);
+        toast.error("Failed to connect to Nwallet. Please try again.");
+        return;
+      }
+    }
+
+    // At this point, we should have a valid userAddress
+    if (!userAddress) {
+      toast.error("No wallet address available. Please connect to Nwallet and try again.");
       return;
     }
+
+    console.log("[NFTUploadForm] Using wallet address for minting:", userAddress);
 
     try {
       const formData: NFTUploadFormData = {
@@ -75,12 +121,12 @@ export const NFTUploadForm: React.FC<NFTUploadFormProps> = ({ onSubmit, isUpload
         file: selectedFile,
         fractions,
         royaltyPercentage,
-        royaltyBeneficiary: royaltyBeneficiary || address,
+        royaltyBeneficiary: royaltyBeneficiary || userAddress,
         attributes: attributes.filter(attr => attr.trait_type && attr.value)
       };
 
       await onSubmit(formData);
-      
+
       // Clear form
       setName('');
       setDescription('');
@@ -105,7 +151,7 @@ export const NFTUploadForm: React.FC<NFTUploadFormProps> = ({ onSubmit, isUpload
             <div
               {...getRootProps()}
               className={`border-2 border-dashed rounded-xl p-8 h-[300px]
-                flex flex-col items-center justify-center gap-4 
+                flex flex-col items-center justify-center gap-4
                 cursor-pointer transition-colors duration-200
                 ${isDragActive ? 'border-purple-400 bg-purple-400/10' : 'border-white/20'}`}
             >
@@ -268,8 +314,8 @@ export const NFTUploadForm: React.FC<NFTUploadFormProps> = ({ onSubmit, isUpload
           type="submit"
           disabled={isUploading}
           className={`w-full py-3 rounded-lg font-medium transition-colors
-            ${isUploading 
-              ? 'bg-purple-500/50 cursor-not-allowed' 
+            ${isUploading
+              ? 'bg-purple-500/50 cursor-not-allowed'
               : 'bg-purple-600 hover:bg-purple-700'}`}
         >
           {isUploading ? (
@@ -284,4 +330,4 @@ export const NFTUploadForm: React.FC<NFTUploadFormProps> = ({ onSubmit, isUpload
       </form>
     </GlassCard>
   );
-}; 
+};

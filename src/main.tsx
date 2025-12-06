@@ -1,91 +1,112 @@
 // Import polyfill first
 import './polyfill';
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
 import { ApolloProvider } from '@apollo/client';
 import { client } from './lib/apollo';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './index.css';
-import { verifyWalletConnection, initializeNijaWallet } from './walletConnection';
-import { ErrorBoundary } from './components/ErrorBoundary';
+import { initializeGlobalUtils } from './utils/global-utils';
+import { initLogger } from './utils/initialization-logger';
+import { memoryTracker } from './utils/memory-tracker';
 
-// Extend Window interface to include Sentry
-declare global {
-  interface Window {
-    Sentry?: {
-      init: (config: any) => void;
-      captureException: (error: any) => void;
-      captureMessage: (message: string) => void;
-    };
-    nijaHeartbeatInterval?: NodeJS.Timeout;
-    emitEthereumEvent?: (eventName: string, ...args: any[]) => void;
-    ethereum?: any;
-    __nftgenPatched?: boolean;
-  }
-}
-
-// Wait for window.ethereum to be injected
-const waitForEthereum = () => {
-  return new Promise<void>((resolve) => {
-    if (window.ethereum) {
-      resolve();
-    } else {
-      window.addEventListener('ethereum#initialized', () => {
-        resolve();
-      }, { once: true });
-      
-      // If no injection happened within 3 seconds, proceed
-      setTimeout(resolve, 3000);
-    }
-  });
-};
-
-// Initialize the app
-const initializeApp = async () => {
+// Use lazy loading for the main App to allow for fallback
+const App = lazy(() => import('./App').catch(error => {
+  console.error('Failed to load App component:', error);
+  // Store error information for the fallback app
   try {
-    // Only initialize if we have a nija_session
-    const searchParams = new URLSearchParams(window.location.search);
-    const nijaSession = searchParams.get('nija_session');
-
-    if (nijaSession) {
-      // Initialize permanent connection to Nija Wallet
-      await initializeNijaWallet();
-    } else {
-      console.log('No Nija session found - skipping wallet initialization');
-    }
-  } catch (error) {
-    console.error('Failed to initialize app:', error);
+    localStorage.setItem('nftgen_error_info', JSON.stringify({
+      message: error.message || 'Failed to load application',
+      stack: error.stack,
+      timestamp: Date.now()
+    }));
+  } catch (e) {
+    console.error('Failed to store error information:', e);
   }
-};
+  // Import the FallbackApp instead
+  return import('./components/FallbackApp');
+}));
 
-// Start the application
-waitForEthereum()
-  .then(async () => {
-    if (window.ethereum) {
-      console.log('Ethereum provider detected');
-    } else {
-      console.log('No Ethereum provider detected');
-    }
-    
-    // Initialize app before rendering
-    await initializeApp();
-    
-    // Create root only once
-    const root = ReactDOM.createRoot(
-      document.getElementById('root') as HTMLElement
-    );
+// No loading component needed here as we use inline JSX in the Suspense fallback
 
-    // Render the app
-    root.render(
-      <React.StrictMode>
-        <ErrorBoundary>
-          <ApolloProvider client={client}>
-            <App />
-            <ToastContainer position="bottom-right" />
-          </ApolloProvider>
-        </ErrorBoundary>
-      </React.StrictMode>
-    );
-  });
+// Start memory tracking
+memoryTracker.startTracking();
+
+// Initialize global utilities with singleton pattern and logging
+initLogger.startTiming('NFTGen', 'global_utils_init');
+console.log('🔧 Starting global utilities initialization...');
+initializeGlobalUtils().then(() => {
+  initLogger.endTiming('NFTGen', 'global_utils_init');
+  console.log('✅ Global utilities initialization completed');
+}).catch((error) => {
+  initLogger.logEvent('NFTGen', 'global_utils_init_error', { error: error.message });
+  console.error('❌ Global utilities initialization failed:', error);
+});
+
+// Create root and render app
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
+
+// Render the app with all providers
+// Use conditional StrictMode based on environment to prevent duplicate renders in production
+const AppWrapper = () => (
+  <ApolloProvider client={client}>
+    <Suspense fallback={
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          fontSize: '18px',
+          fontFamily: 'system-ui, -apple-system, sans-serif'
+        }}>
+          Loading NFTGen...
+        </div>
+      }>
+        <App />
+      </Suspense>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
+    </ApolloProvider>
+);
+
+// Conditional StrictMode rendering based on environment
+const isDevelopment = import.meta.env.DEV;
+const shouldUseStrictMode = isDevelopment && !import.meta.env.VITE_DISABLE_STRICT_MODE;
+
+initLogger.logEvent('NFTGen', 'render_start', { strictMode: shouldUseStrictMode });
+console.log(`🚀 NFTGen rendering with StrictMode: ${shouldUseStrictMode ? 'enabled' : 'disabled'}`);
+
+initLogger.startTiming('NFTGen', 'app_render');
+root.render(
+  shouldUseStrictMode ? (
+    <React.StrictMode>
+      <AppWrapper />
+    </React.StrictMode>
+  ) : (
+    <AppWrapper />
+  )
+);
+initLogger.endTiming('NFTGen', 'app_render');
+
+initLogger.logEvent('NFTGen', 'initialization_complete');
+console.log('✅ NFTGen initialization complete - using only real data from Alchemy/Nwallet');
+
+// Print initialization report after a short delay to capture all events
+setTimeout(() => {
+  initLogger.printReport();
+}, 2000);

@@ -8,71 +8,33 @@ import { isNijaWalletProvider } from '../walletConnection';
 import { NFTUploadForm } from '../components/NFTUploadForm';
 import { NFTGallery } from '../components/NFTGallery';
 
-export function Home() {
+function Home() {
   const navigate = useNavigate();
-  const { address, isConnecting, connect } = useWallet();
+  const { address } = useWallet();
   const [isNijaDetected, setIsNijaDetected] = useState<boolean>(false);
-  const [isConnected, setIsConnected] = useState<boolean>(false);
+  const { connect, isConnecting, isConnected } = useWallet();
   const [userNFTs, setUserNFTs] = useState<any[]>([]);
   const [isInitializing, setIsInitializing] = useState<boolean>(true);
-  const [hasAttemptedConnection, setHasAttemptedConnection] = useState<boolean>(false);
-  
-  // Check if Nija Wallet is detected and handle session
+
+  // Check if Nija Wallet is detected (runs once)
   useEffect(() => {
-    const checkWalletAndSession = async () => {
-      try {
-        setIsInitializing(true);
-        // Check for Nija Wallet
-        const detected = isNijaWalletProvider();
-        setIsNijaDetected(detected);
+    console.log("Home.tsx: Checking for Nija Wallet provider...");
+    setIsInitializing(true);
+    const detected = isNijaWalletProvider();
+    setIsNijaDetected(detected);
+    console.log(`Home.tsx: Nija Wallet detected: ${detected}`);
+    // No automatic connection attempt here anymore
+    setIsInitializing(false);
+  }, []); // Empty dependency array means run only once on mount
 
-        // Check for session
-        const searchParams = new URLSearchParams(window.location.search);
-        const nijaSession = searchParams.get('session');
-
-        if (nijaSession && !hasAttemptedConnection) {
-          try {
-            setHasAttemptedConnection(true);
-            // If we have a session, store it and connect
-            localStorage.setItem('nija_wallet_session', nijaSession);
-            if (!address && !isConnecting) {
-              console.log('Session found, attempting connection');
-              await connect();
-            }
-          } catch (error) {
-            console.error('Error connecting with session:', error);
-            toast.error('Failed to connect with session');
-          }
-        } else if (detected && !address && !isConnecting && !hasAttemptedConnection) {
-          // If wallet is detected but no session, attempt connection once
-          setHasAttemptedConnection(true);
-          console.log('Nija Wallet detected but not connected, attempting connection');
-          await connect();
-        }
-      } catch (error) {
-        console.error('Error in wallet initialization:', error);
-        toast.error('Failed to initialize wallet');
-      } finally {
-        setIsInitializing(false);
-      }
-    };
-
-    checkWalletAndSession();
-  }, [address, isConnecting, connect, hasAttemptedConnection]);
-
-  // Update connection status when address changes
-  useEffect(() => {
-    setIsConnected(!!address);
-  }, [address]);
-  
-  // Only fetch NFTs if we have a wallet address and we're not initializing
+  // Fetch NFTs based on context's address and isConnected state
   const { loading, error, data, refetch } = useQuery(GET_NFTS, {
     variables: { owner: address || '' },
-    skip: !address || isInitializing,
+    skip: !isConnected || !address, // Skip if not connected or no address
     fetchPolicy: 'cache-and-network',
   });
 
-  // Show loading state during initialization
+  // Show loading state during initial provider check
   if (isInitializing) {
     return (
       <div className="container mx-auto p-6">
@@ -93,18 +55,39 @@ export function Home() {
   const handleViewNFT = (id: string) => {
     navigate(`/nft/${id}`);
   };
-  
-  // Handle connect button click
+
+  // Handle connect button click (Manual Connection)
   const handleConnectClick = async () => {
     if (isNijaDetected) {
-      try {
-        await connect();
-      } catch (error) {
-        console.error('Connection error:', error);
-        toast.error('Failed to connect to Nija Wallet. Please try again.');
-      }
+        console.log("Home.tsx: Connect button clicked, calling connect()...");
+        try {
+            // Debug: Check localStorage for session
+            const sessionStr = localStorage.getItem('nija_wallet_session');
+            if (sessionStr) {
+              try {
+                const sessionData = JSON.parse(sessionStr);
+                console.log("Home.tsx: Found existing session in localStorage:", sessionData);
+
+                // Try to use the existing session
+                if (sessionData.address) {
+                  console.log("Home.tsx: Using existing session address:", sessionData.address);
+                  toast.info(`Using existing session for address: ${sessionData.address.substring(0, 8)}...`);
+                }
+              } catch (parseError) {
+                console.error("Home.tsx: Error parsing session data:", parseError);
+              }
+            } else {
+              console.log("Home.tsx: No session found in localStorage");
+            }
+
+            await connect(); // Use the connect function from useWallet
+        } catch (error) {
+            console.error('Home.tsx: Manual Connection error:', error);
+            toast.error('Failed to connect to Nija Wallet. Please try again.');
+        }
     } else {
       toast.info('Please install or enable Nija Wallet to continue.');
+      // Optionally try opening Nwallet? window.open('http://3.111.22.56:6101/nijawallet', '_blank');
     }
   };
 
@@ -114,7 +97,7 @@ export function Home() {
   };
 
   // If wallet is connected, show NFTs
-  if (isConnected) {
+  if (isConnected && address) {
     return (
       <div className="space-y-8">
         <div className="flex justify-between items-center">
@@ -132,11 +115,8 @@ export function Home() {
             </button>
           </div>
         </div>
-        
-        <NFTGallery 
-          nfts={data?.nfts || []} 
-          isLoading={loading} 
-        />
+
+        <NFTGallery />
       </div>
     );
   }
@@ -179,26 +159,61 @@ export function Home() {
                 Nija Wallet detected! Click below to connect and view your NFTs.
               </p>
               <button
-                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors w-full"
+                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors w-full disabled:opacity-50"
                 onClick={handleConnectClick}
+                disabled={isConnecting} // Disable button while connecting
               >
-                Connect Wallet
+                {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+              </button>
+
+              <button
+                className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors w-full"
+                onClick={() => {
+                  // Debug: Check localStorage for session
+                  const sessionStr = localStorage.getItem('nija_wallet_session');
+                  if (sessionStr) {
+                    try {
+                      const sessionData = JSON.parse(sessionStr);
+                      console.log("Debug: Found session in localStorage:", sessionData);
+                      toast.info(`Session found for address: ${sessionData.address.substring(0, 8)}...`);
+
+                      // Force update the wallet context
+                      if (sessionData.address) {
+                        // Manually set the session in localStorage
+                        localStorage.setItem('nija_wallet_session', JSON.stringify({
+                          ...sessionData,
+                          timestamp: Date.now() // Update timestamp
+                        }));
+
+                        // Reload the page to force the wallet context to re-read the session
+                        window.location.reload();
+                      }
+                    } catch (parseError) {
+                      console.error("Debug: Error parsing session data:", parseError);
+                      toast.error("Error parsing session data");
+                    }
+                  } else {
+                    console.log("Debug: No session found in localStorage");
+                    toast.warning("No session found in localStorage");
+                  }
+                }}
+              >
+                Debug Session
               </button>
             </div>
           ) : (
             <div className="text-center space-y-4">
               <p className="text-gray-300">
-                Nija Wallet not detected. Please ensure you are using the Nija Wallet browser.
+                Nija Wallet not detected. Please ensure Nija Wallet is running and accessible.
               </p>
               <button
-                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors w-full"
-                onClick={handleConnectClick}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors w-full"
+                onClick={() => {
+                  window.open('http://3.111.22.56:6101/nijawallet', '_blank');
+                }}
               >
                 Open Nija Wallet
               </button>
-              <p className="text-sm text-gray-500">
-                After opening Nija Wallet, please return to this page and refresh.
-              </p>
             </div>
           )}
         </div>
@@ -251,4 +266,6 @@ export function Home() {
       </div>
     </div>
   );
-} 
+}
+
+export default Home;

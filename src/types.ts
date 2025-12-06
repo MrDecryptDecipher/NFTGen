@@ -9,7 +9,9 @@ export interface NFT {
     title?: string;
     description: string;
     owner: string;
-    status: 'LISTED' | 'SOLD' | 'UNLISTED';
+    status: 'OWNED' | 'LISTED' | 'SOLD' | 'FRACTIONALIZED';
+    contractAddress: string;
+    tokenId: string;
     metadata?: {
         attributes?: Array<{
             trait_type: string;
@@ -17,16 +19,16 @@ export interface NFT {
         }>;
     };
     fractions?: {
-        id: string;
         supply: number;
-        remaining: number;
-        pricePerFraction: number;
+        available: number;
+        pricePerFraction: string;
     };
     royalties?: {
         id: string;
         percentage: number;
         beneficiary: string;
     };
+    fractionData?: FractionData;
 }
 
 export interface UserProfile {
@@ -95,3 +97,36 @@ export interface WebSocketMessage {
     type: string;
     data: any;
 }
+
+export interface NFTFractionalizationConfig {
+    supply: number;
+    pricePerFraction: string;
+    minimumPurchase: number;
+}
+
+export interface FractionData {
+    tokenId: string;
+    supply: number;
+    available: number;
+    pricePerFraction: string;
+    receiver: string;
+    status: string;
+    txHash: string;
+}
+
+export interface NFTUploadFormData {
+    name: string;
+    description: string;
+    image: File | null;
+    attributes?: Array<{
+        trait_type: string;
+        value: string | number;
+    }>;
+}
+
+export interface NFTAttribute {
+    trait_type: string;
+    value: string | number;
+}
+
+export type NFTStatus = 'OWNED' | 'LISTED' | 'SOLD' | 'FRACTIONALIZED';

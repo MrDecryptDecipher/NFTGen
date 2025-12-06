@@ -3,6 +3,9 @@ import { createHttpLink } from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
 import { RetryLink } from '@apollo/client/link/retry';
 import { toast } from 'react-toastify';
+import { NWALLET_GRAPHQL_URL } from '../config/constants'; // Updated import
+import { setContext } from '@apollo/client/link/context';
+import { getStorageItem } from '../utils/safeStorage';
 
 // Define fragments for reusable field selections
 const NFT_FIELDS = gql`
@@ -74,19 +77,27 @@ export const GET_NFT_BY_ID = gql`
   ${ROYALTY_FIELDS}
 `;
 
-// Create error handling link
+// Create error handling link with improved error handling
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors) {
     graphQLErrors.forEach(({ message, locations, path }) => {
       console.error(
         `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
       );
-      toast.error(`Error: ${message}`);
+      // Only show toast for non-404 errors to avoid spamming the user
+      if (!message.includes('404') && !message.includes('Not Found')) {
+        toast.error(`Error: ${message}`);
+      }
     });
   }
   if (networkError) {
     console.error(`[Network error]: ${networkError}`);
-    toast.error('Network error occurred. Please try again.');
+    // Don't show toast for 404 errors to avoid spamming the user
+    if (networkError.message &&
+        !networkError.message.includes('404') &&
+        !networkError.message.includes('Not Found')) {
+      toast.error('Network error occurred. Please try again.');
+    }
   }
 });
 
@@ -108,16 +119,38 @@ const retryLink = new RetryLink({
 
 // Create HTTP link
 const httpLink = createHttpLink({
-  uri: 'http://3.111.22.56:3000/graphql',
-  credentials: 'include',
+  uri: NWALLET_GRAPHQL_URL, // Using the imported GraphQL URL from constants
+  credentials: 'same-origin', // Use same-origin for better security
   headers: {
     'Content-Type': 'application/json',
+    'Origin': window.location.origin,
+    'X-NFTGen-Origin': window.location.origin
+  },
+  fetchOptions: {
+    mode: 'cors',
+    cache: 'no-cache'
   }
+});
+
+// Add auth context link
+const authLink = setContext((_, { headers }) => {
+  // Get the session from safe storage
+  const session = getStorageItem('nwallet_session') || getStorageItem('nija_wallet_session') || '';
+
+  return {
+    headers: {
+      ...headers,
+      'Content-Type': 'application/json',
+      'Origin': window.location.origin,
+      'X-NFTGen-Origin': window.location.origin,
+      'X-NFTGen-Session': session
+    }
+  };
 });
 
 // Create Apollo Client
 export const client = new ApolloClient({
-  link: retryLink.concat(errorLink.concat(httpLink)),
+  link: retryLink.concat(errorLink.concat(authLink.concat(httpLink))),
   cache: new InMemoryCache({
     typePolicies: {
       Query: {
@@ -157,4 +190,4 @@ export const client = new ApolloClient({
       errorPolicy: 'all',
     },
   },
-}); 
+});

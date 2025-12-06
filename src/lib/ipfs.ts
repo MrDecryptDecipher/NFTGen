@@ -1,425 +1,340 @@
-// Enhanced IPFS service with multiple fallbacks and resilient uploads
 import axios, { AxiosRequestConfig } from 'axios';
+import { ethers } from 'ethers';
 
-// Define metadata interface
+// Define metadata interface following OpenSea standards
 interface NFTMetadata {
   name: string;
   description: string;
   image: string;
+  external_url?: string;
+  animation_url?: string;
+  background_color?: string;
   attributes: Array<{
     trait_type: string;
     value: string | number;
+    display_type?: string;
+    max_value?: number;
+    trait_count?: number;
+    order?: number;
   }>;
+  properties?: {
+    files?: Array<{
+      uri: string;
+      type: string;
+      cdn?: boolean;
+    }>;
+    category?: string;
+    creators?: Array<{
+      address: string;
+      share: number;
+    }>;
+  };
 }
 
-// Environment variables with defaults that enable fallback mock mode
-// This ensures uploads will succeed even without API keys
-const ENABLE_MOCK_IPFS = process.env.REACT_APP_ENABLE_MOCK_IPFS === 'true' || false;
-const DISABLE_SENTRY = process.env.REACT_APP_DISABLE_SENTRY === 'true' || false;
-
-// Production API keys should be loaded from environment variables
-// These keys are intentionally invalid for security - you should replace them with real keys
+// Environment variables with improved validation
 const API_KEYS = {
-  // You'll need to add your own API keys in a production environment
-  ALCHEMY: process.env.REACT_APP_ALCHEMY_API_KEY || 'demo',
-  PINATA_KEY: process.env.REACT_APP_PINATA_KEY || process.env.REACT_APP_PINATA_API_KEY || '96953eb624f9ce22b064',
-  PINATA_SECRET: process.env.REACT_APP_PINATA_SECRET || process.env.REACT_APP_PINATA_SECRET_KEY || '831161285770d28570db080babd7b06d1e65a116b8657dd2fc7f40cd168879ac',
-  NFT_STORAGE: process.env.REACT_APP_NFT_STORAGE_KEY || '3f476e95.1520c4a794a64acbbb43ab1f1ebc9c02',
-  WEB3_STORAGE: process.env.REACT_APP_WEB3_STORAGE_KEY || 'demo'
+  ALCHEMY: process.env.VITE_ALCHEMY_API_KEY || process.env.REACT_APP_ALCHEMY_API_KEY,
+  PINATA_KEY: process.env.VITE_PINATA_KEY || process.env.REACT_APP_PINATA_KEY,
+  PINATA_SECRET: process.env.VITE_PINATA_SECRET || process.env.REACT_APP_PINATA_SECRET,
+  NFT_STORAGE: process.env.VITE_NFT_STORAGE_KEY || process.env.REACT_APP_NFT_STORAGE_KEY
 };
 
-// If mock mode is enabled, directly use the mock API for uploads
-if (ENABLE_MOCK_IPFS) {
-  console.log('IPFS Mock Mode is enabled - all uploads will succeed with mock CIDs');
-}
+// Validate required API keys
+const validateAPIKeys = () => {
+  const missingKeys = [];
+  if (!API_KEYS.ALCHEMY) missingKeys.push('ALCHEMY');
+  if (!API_KEYS.PINATA_KEY || !API_KEYS.PINATA_SECRET) missingKeys.push('PINATA');
+  if (!API_KEYS.NFT_STORAGE) missingKeys.push('NFT_STORAGE');
+  
+  if (missingKeys.length > 0) {
+    console.warn(`Missing API keys for: ${missingKeys.join(', ')}`);
+    return false;
+  }
+  return true;
+};
 
-// List of public CORS proxies for handling CORS issues
-const corsProxies = [
-  'https://corsproxy.io/?',   // Most reliable
-  'https://cors.bridged.cc/', // Backup
-  'https://api.allorigins.win/raw?url=', // Another option
-  'https://proxy.cors.sh/',  // Final option
-  'https://cors-anywhere.herokuapp.com/' // Requires temporary access
+// IPFS Gateway configuration with health checks
+const IPFS_GATEWAYS = [
+  'https://ipfs.io/ipfs/',
+  'https://gateway.pinata.cloud/ipfs/',
+  'https://cloudflare-ipfs.com/ipfs/',
+  'https://gateway.ipfs.io/ipfs/'
 ];
 
-// Fallback mock CIDs to use when all upload attempts fail
-const FALLBACK_MOCK_IMAGE_CID = 'QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ';
-const FALLBACK_MOCK_METADATA_CID = 'QmZHKZDavkvNfA9gQNpXo3QzCEFF7rXrP2vFxwY8J2uUzC';
-
-// Local proxy helper - in a production environment, you should implement a real proxy server
-const constructLocalProxyUrl = (targetUrl: string): string => {
-  // Use the most reliable CORS proxy
-  return `${corsProxies[0]}${encodeURIComponent(targetUrl)}`;
+// Check gateway health and response times
+const checkGatewayHealth = async (gateway: string): Promise<number> => {
+  try {
+    const start = Date.now();
+    await axios.head(`${gateway}QmZ4tDuvesekSs4qM5ZBKpXiZGun7S2CYtEZRB3DYXkjGx`, {
+      timeout: 5000
+    });
+    return Date.now() - start;
+  } catch {
+    return Infinity;
+  }
 };
 
-// List of IPFS gateway endpoints to try in order
+// Get fastest responding gateway
+const getFastestGateway = async (): Promise<string> => {
+  const responses = await Promise.all(
+    IPFS_GATEWAYS.map(async gateway => ({
+      gateway,
+      responseTime: await checkGatewayHealth(gateway)
+    }))
+  );
+  
+  const fastest = responses.reduce((a, b) => 
+    a.responseTime < b.responseTime ? a : b
+  );
+  
+  return fastest.responseTime === Infinity ? IPFS_GATEWAYS[0] : fastest.gateway;
+};
+
+// Enhanced IPFS endpoints with Web3.Storage as primary provider
 const ipfsEndpoints = [
-  // Primary endpoint
   {
-    uploadUrl: 'https://ipfs.alchemy.com/api/v1/upload',
+    name: 'Web3.Storage',
+    uploadUrl: 'web3storage-service', // Special identifier for Web3.Storage service
+    headers: {},
+    parseResponse: (response: any) => {
+      if (response?.url) {
+        return response.url; // Already in ipfs:// format
+      }
+      throw new Error('Invalid Web3.Storage response format');
+    },
+    isWeb3Storage: true // Flag to identify Web3.Storage endpoint
+  },
+  {
+    name: 'Alchemy',
+    uploadUrl: 'https://ipfs.alchemy.com/api/v2/upload',
     headers: {
-      'X-API-Key': API_KEYS.ALCHEMY,
+      'X-API-Key': API_KEYS.ALCHEMY
     },
     parseResponse: (response: any) => {
       if (response?.data?.ipfsHash) {
         return `ipfs://${response.data.ipfsHash}`;
       }
-      return null;
+      throw new Error('Invalid Alchemy response format');
     }
   },
-  // Fallback 1: Pinata
   {
+    name: 'Pinata',
     uploadUrl: 'https://api.pinata.cloud/pinning/pinFileToIPFS',
     headers: {
       'pinata_api_key': API_KEYS.PINATA_KEY,
-      'pinata_secret_api_key': API_KEYS.PINATA_SECRET,
+      'pinata_secret_api_key': API_KEYS.PINATA_SECRET
     },
     parseResponse: (response: any) => {
       if (response?.data?.IpfsHash) {
         return `ipfs://${response.data.IpfsHash}`;
       }
-      return null;
-    }
-  },
-  // Fallback 2: NFT.Storage
-  {
-    uploadUrl: 'https://api.nft.storage/upload',
-    headers: {
-      'Authorization': `Bearer ${API_KEYS.NFT_STORAGE}`,
-    },
-    parseResponse: (response: any) => {
-      if (response?.data?.value?.cid) {
-        return `ipfs://${response.data.value.cid}`;
-      }
-      return null;
+      throw new Error('Invalid Pinata response format');
     }
   }
 ];
 
-// Cache for successful responses
-const ipfsCache = new Map<string, string>();
-
-/**
- * Generate a cache key for a file
- */
-const generateCacheKey = (file: File): string => {
-  return `${file.name}-${file.size}-${file.lastModified}`;
+// Improved metadata validation and normalization
+const validateMetadata = (metadata: NFTMetadata): void => {
+  if (!metadata.name || typeof metadata.name !== 'string') {
+    throw new Error('Invalid metadata: name is required and must be a string');
+  }
+  if (!metadata.description || typeof metadata.description !== 'string') {
+    throw new Error('Invalid metadata: description is required and must be a string');
+  }
+  if (!metadata.image || typeof metadata.image !== 'string') {
+    throw new Error('Invalid metadata: image is required and must be a string');
+  }
+  if (!Array.isArray(metadata.attributes)) {
+    throw new Error('Invalid metadata: attributes must be an array');
+  }
 };
 
-/**
- * Generate a cache key for metadata
- */
-const generateMetadataCacheKey = (metadata: NFTMetadata): string => {
-  return `metadata-${metadata.name}-${Date.now()}`;
-};
-
-/**
- * Upload directly to MockAPI as a last resort
- * This is a simulated function that returns a mock CID when all else fails
- */
-const uploadToMockAPI = async (file: File): Promise<string> => {
-  console.log('Using mock API upload for file:', file.name);
+// Enhanced metadata normalization with size checks
+const normalizeMetadata = async (metadata: NFTMetadata): Promise<NFTMetadata> => {
+  validateMetadata(metadata);
   
-  // Simulate a delay to make it seem like we're doing something
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Return a deterministic "hash" based on the file name and size
-  // This is just for simulation purposes - in real life you'd use a real IPFS service
-  const mockHash = FALLBACK_MOCK_IMAGE_CID;
-  
-  return `ipfs://${mockHash}`;
-};
-
-/**
- * Upload content to IPFS with retries and fallbacks
- */
-export const uploadToIPFS = async (file: File): Promise<string> => {
-  // In mock mode, just return the mock hash immediately
-  if (ENABLE_MOCK_IPFS) {
-    console.log('IPFS Mock Mode: Returning mock CID immediately');
-    return `ipfs://${FALLBACK_MOCK_IMAGE_CID}`;
+  // Ensure image is IPFS URI
+  let imageUri = metadata.image;
+  if (!imageUri.startsWith('ipfs://')) {
+    if (imageUri.includes('ipfs/')) {
+      const ipfsMatch = imageUri.match(/ipfs\/([a-zA-Z0-9]+)/);
+      if (ipfsMatch?.[1]) {
+        imageUri = `ipfs://${ipfsMatch[1]}`;
+      }
+    }
   }
   
-  // Check cache first
-  const cacheKey = generateCacheKey(file);
-  if (ipfsCache.has(cacheKey)) {
-    console.log('Using cached IPFS hash');
-    return ipfsCache.get(cacheKey)!;
-  }
-  
-  // Keep track of errors for detailed reporting
-  const errors: Error[] = [];
-  
-  // Try each endpoint with retries
-  for (const endpoint of ipfsEndpoints) {
+  // Validate image size if it's a URL
+  if (imageUri.startsWith('http')) {
     try {
-      console.log(`Trying IPFS upload to ${endpoint.uploadUrl}...`);
-      
-      // Skip empty API keys
-      if (
-        (endpoint.uploadUrl.includes('alchemy') && API_KEYS.ALCHEMY === 'demo') ||
-        (endpoint.uploadUrl.includes('pinata') && (API_KEYS.PINATA_KEY === 'demo' || API_KEYS.PINATA_SECRET === 'demo')) ||
-        (endpoint.uploadUrl.includes('nft.storage') && API_KEYS.NFT_STORAGE === 'demo')
-      ) {
-        console.log(`Skipping ${endpoint.uploadUrl} due to missing API key`);
-        continue;
-      }
-      
-      // Create a FormData object to send the file
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      // Additional metadata for Pinata
-      if (endpoint.uploadUrl.includes('pinata')) {
-        const metadata = JSON.stringify({
-          name: file.name,
-          keyvalues: {
-            createdBy: 'NFTGen'
-          }
-        });
-        formData.append('pinataMetadata', metadata);
-        
-        const options = JSON.stringify({
-          cidVersion: 0,
-        });
-        formData.append('pinataOptions', options);
-      }
-      
-      // Set timeout and retry options
-      const config: AxiosRequestConfig = {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          ...endpoint.headers
-        },
-        timeout: 30000 // 30 second timeout
-      };
-      
-      // Make the request
-      const response = await axios.post(endpoint.uploadUrl, formData, config);
-      
-      // Parse the response
-      const ipfsUri = endpoint.parseResponse(response);
-      
-      // Validate the URI is correct
-      if (ipfsUri && ipfsUri.startsWith('ipfs://') && !ipfsUri.includes('undefined')) {
-        // Cache the result
-        ipfsCache.set(cacheKey, ipfsUri);
-        
-        console.log(`Successfully uploaded to IPFS: ${ipfsUri}`);
-        return ipfsUri;
-      } else {
-        console.error(`Invalid IPFS URI returned from ${endpoint.uploadUrl}:`, ipfsUri);
-        throw new Error(`Invalid IPFS URI: ${ipfsUri}`);
+      const response = await axios.head(imageUri);
+      const sizeInMB = parseInt(response.headers['content-length']) / (1024 * 1024);
+      if (sizeInMB > 100) {
+        throw new Error('Image size exceeds 100MB limit');
       }
     } catch (error) {
-      console.error(`Error uploading to ${endpoint.uploadUrl}:`, error);
-      errors.push(error as Error);
-      // Continue to next endpoint
+      console.warn('Could not validate image size:', error);
     }
   }
   
-  // As a last resort, try the mock API
-  console.log('All IPFS endpoint attempts failed, using mock API as fallback');
+  // Clean and normalize attributes
+  const attributes = metadata.attributes.map(attr => ({
+    trait_type: attr.trait_type,
+    value: attr.value,
+    ...(attr.display_type && { display_type: attr.display_type }),
+    ...(attr.max_value && { max_value: attr.max_value }),
+    ...(attr.trait_count && { trait_count: attr.trait_count }),
+    ...(attr.order && { order: attr.order })
+  }));
   
-  try {
-    const mockUri = await uploadToMockAPI(file);
-    
-    // Cache the result
-    ipfsCache.set(cacheKey, mockUri);
-    
-    console.log(`Successfully uploaded to mock API: ${mockUri}`);
-    return mockUri;
-  } catch (mockError) {
-    console.error('Mock API upload failed:', mockError);
-  }
-  
-  // If we got this far, we couldn't upload to any endpoint
-  console.warn('All IPFS upload endpoints failed:', errors);
-  
-  // Generate a fallback mock IPFS URL
-  const mockIPFS = `ipfs://${FALLBACK_MOCK_IMAGE_CID}`;
-  console.warn('Using fallback mock IPFS hash due to service failures:', mockIPFS);
-  
-  // Store in cache to avoid repeated failures
-  ipfsCache.set(cacheKey, mockIPFS);
-  
-  return mockIPFS;
-};
-
-/**
- * Upload metadata directly to MockAPI as a last resort
- */
-const uploadMetadataToMockAPI = async (metadata: NFTMetadata): Promise<string> => {
-  console.log('Using mock API upload for metadata');
-  
-  // Simulate a delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Return a deterministic hash based on the metadata
-  const mockHash = FALLBACK_MOCK_METADATA_CID;
-  
-  return `ipfs://${mockHash}`;
-};
-
-/**
- * Ensure metadata conforms to the standard format per Alchemy guide
- */
-const normalizeMetadata = (metadata: NFTMetadata): NFTMetadata => {
-  // Make sure image URI starts with ipfs://
-  let imageUri = metadata.image;
-  if (!imageUri.startsWith('ipfs://') && imageUri.includes('ipfs/')) {
-    // Extract the CID from a gateway URL
-    const ipfsMatch = imageUri.match(/ipfs\/([a-zA-Z0-9]+)/);
-    if (ipfsMatch && ipfsMatch[1]) {
-      imageUri = `ipfs://${ipfsMatch[1]}`;
-    }
-  }
-  
-  // Ensure we have attributes
-  const attributes = metadata.attributes || [];
-  
-  // Return normalized metadata matching Alchemy standard
   return {
-    name: metadata.name,
-    description: metadata.description,
+    name: metadata.name.trim(),
+    description: metadata.description.trim(),
     image: imageUri,
-    attributes: attributes
+    attributes,
+    ...(metadata.external_url && { external_url: metadata.external_url }),
+    ...(metadata.animation_url && { animation_url: metadata.animation_url }),
+    ...(metadata.background_color && { background_color: metadata.background_color }),
+    ...(metadata.properties && { properties: metadata.properties })
   };
 };
 
-/**
- * Upload metadata to IPFS with retries and fallbacks
- */
-export const uploadMetadata = async (metadata: NFTMetadata): Promise<string> => {
-  // In mock mode, just return the mock hash immediately
-  if (ENABLE_MOCK_IPFS) {
-    console.log('IPFS Mock Mode: Returning mock metadata CID immediately');
-    return `ipfs://${FALLBACK_MOCK_METADATA_CID}`;
+// Improved upload function with retries and persistence checks
+export const uploadToIPFS = async (
+  file: File,
+  options: { retries?: number; timeout?: number } = {}
+): Promise<string> => {
+  const { retries = 3, timeout = 30000 } = options;
+  
+  if (!validateAPIKeys()) {
+    throw new Error('Missing required API keys');
   }
   
-  // Check cache first
-  const cacheKey = generateMetadataCacheKey(metadata);
-  if (ipfsCache.has(cacheKey)) {
-    console.log('Using cached metadata IPFS hash');
-    return ipfsCache.get(cacheKey)!;
+  // Validate file size
+  const maxSize = 100 * 1024 * 1024; // 100MB
+  if (file.size > maxSize) {
+    throw new Error('File size exceeds 100MB limit');
   }
   
-  // Normalize metadata to Alchemy standard
-  const normalizedMetadata = normalizeMetadata(metadata);
+  const errors: Error[] = [];
   
-  // Try each endpoint with retries
   for (const endpoint of ipfsEndpoints) {
-    try {
-      console.log(`Trying metadata upload to ${endpoint.uploadUrl}...`);
-      
-      // Skip empty API keys
-      if (
-        (endpoint.uploadUrl.includes('alchemy') && API_KEYS.ALCHEMY === 'demo') ||
-        (endpoint.uploadUrl.includes('pinata') && (API_KEYS.PINATA_KEY === 'demo' || API_KEYS.PINATA_SECRET === 'demo')) ||
-        (endpoint.uploadUrl.includes('nft.storage') && API_KEYS.NFT_STORAGE === 'demo')
-      ) {
-        console.log(`Skipping ${endpoint.uploadUrl} due to missing API key`);
-        continue;
-      }
-      
-      // Special handling for each endpoint
-      let response;
-      
-      if (endpoint.uploadUrl.includes('pinata')) {
-        // Pinata requires a specific API for JSON
-        const pinataUrl = 'https://api.pinata.cloud/pinning/pinJSONToIPFS';
-        const pinataHeaders = {
-          'Content-Type': 'application/json',
-          'pinata_api_key': API_KEYS.PINATA_KEY,
-          'pinata_secret_api_key': API_KEYS.PINATA_SECRET,
-        };
-        
-        // Create metadata with pinataOptions
-        const pinataBody = {
-          pinataContent: normalizedMetadata,
-          pinataMetadata: {
-            name: `${normalizedMetadata.name}-metadata.json`
-          },
-          pinataOptions: {
-            cidVersion: 0
+    for (let attempt = 0; attempt < retries; attempt++) {
+      try {
+        console.log(`Attempting upload to ${endpoint.name} (attempt ${attempt + 1}/${retries})`);
+
+        // Handle Web3.Storage uploads differently
+        if (endpoint.isWeb3Storage) {
+          try {
+            // Import Web3.Storage service dynamically
+            const { web3StorageService } = await import('../services/web3Storage.service');
+
+            // Ensure service is initialized
+            if (!web3StorageService.isSpaceReady()) {
+              await web3StorageService.initialize();
+            }
+
+            // Upload using Web3.Storage service
+            const result = await web3StorageService.uploadFile(file, (progress) => {
+              console.log(`Web3.Storage upload progress: ${progress.progress}%`);
+            });
+
+            console.log(`✅ Successfully uploaded to ${endpoint.name}: ${result.url}`);
+            return result.url;
+
+          } catch (web3Error) {
+            console.warn(`Web3.Storage upload failed: ${web3Error}`);
+            throw web3Error;
           }
-        };
-        
-        response = await axios.post(pinataUrl, pinataBody, {
-          headers: pinataHeaders,
-          timeout: 30000
-        });
-        
-        if (response?.data?.IpfsHash) {
-          const ipfsUri = `ipfs://${response.data.IpfsHash}`;
-          ipfsCache.set(cacheKey, ipfsUri);
-          console.log(`Successfully uploaded metadata to Pinata: ${ipfsUri}`);
-          return ipfsUri;
         }
-      } else if (endpoint.uploadUrl.includes('nft.storage')) {
-        // NFT.storage wants a blob
-        const blob = new Blob([JSON.stringify(normalizedMetadata)], { type: 'application/json' });
+
+        // Handle traditional IPFS endpoints (Alchemy, Pinata)
         const formData = new FormData();
-        formData.append('file', blob, 'metadata.json');
-        
-        response = await axios.post(endpoint.uploadUrl, formData, {
-          headers: endpoint.headers,
-          timeout: 30000
-        });
-        
-        const ipfsUri = endpoint.parseResponse(response);
-        if (ipfsUri) {
-          ipfsCache.set(cacheKey, ipfsUri);
-          console.log(`Successfully uploaded metadata to NFT.Storage: ${ipfsUri}`);
-          return ipfsUri;
+        formData.append('file', file);
+
+        // Add Pinata-specific metadata
+        if (endpoint.name === 'Pinata') {
+          const metadata = JSON.stringify({
+            name: file.name,
+            keyvalues: {
+              source: 'NFTGen',
+              timestamp: Date.now()
+            }
+          });
+          formData.append('pinataMetadata', metadata);
+
+          const options = JSON.stringify({
+            cidVersion: 1,
+            wrapWithDirectory: true
+          });
+          formData.append('pinataOptions', options);
         }
-      } else {
-        // General case (Alchemy and others)
-        const data = JSON.stringify(normalizedMetadata);
         
-        response = await axios.post(endpoint.uploadUrl, data, {
+        const response = await axios.post(endpoint.uploadUrl, formData, {
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'multipart/form-data',
             ...endpoint.headers
           },
-          timeout: 30000
+          timeout
         });
         
         const ipfsUri = endpoint.parseResponse(response);
+        
+        // Verify the upload was successful
         if (ipfsUri && ipfsUri.startsWith('ipfs://')) {
-          ipfsCache.set(cacheKey, ipfsUri);
-          console.log(`Successfully uploaded metadata to ${endpoint.uploadUrl}: ${ipfsUri}`);
+          // Check content is accessible
+          const gateway = await getFastestGateway();
+          const cid = ipfsUri.replace('ipfs://', '');
+          try {
+            await axios.head(`${gateway}${cid}`, { timeout: 5000 });
+          } catch {
+            throw new Error('Content not accessible after upload');
+          }
+          
+          console.log(`Successfully uploaded to ${endpoint.name}: ${ipfsUri}`);
           return ipfsUri;
         }
+        
+        throw new Error(`Invalid IPFS URI returned: ${ipfsUri}`);
+      } catch (error) {
+        console.error(`Upload attempt ${attempt + 1} to ${endpoint.name} failed:`, error);
+        errors.push(error as Error);
+        
+        if (attempt < retries - 1) {
+          // Exponential backoff
+          await new Promise(resolve => 
+            setTimeout(resolve, Math.pow(2, attempt) * 1000)
+          );
+        }
       }
-    } catch (error) {
-      console.error(`Error uploading metadata to ${endpoint.uploadUrl}:`, error);
-      // Continue to next endpoint
     }
   }
   
-  // As a last resort, try the mock API
-  console.log('All metadata upload attempts failed, using mock API');
+  throw new Error(`All upload attempts failed: ${errors.map(e => e.message).join(', ')}`);
+};
+
+// Enhanced metadata upload with improved validation and persistence
+export const uploadMetadata = async (
+  metadata: NFTMetadata,
+  options: { retries?: number; timeout?: number } = {}
+): Promise<string> => {
+  const normalizedMetadata = await normalizeMetadata(metadata);
   
-  try {
-    const mockUri = await uploadMetadataToMockAPI(normalizedMetadata);
-    
-    // Cache the result
-    ipfsCache.set(cacheKey, mockUri);
-    
-    console.log(`Successfully uploaded metadata to mock API: ${mockUri}`);
-    return mockUri;
-  } catch (mockError) {
-    console.error('Mock metadata upload failed:', mockError);
+  // Convert metadata to Blob
+  const blob = new Blob([JSON.stringify(normalizedMetadata, null, 2)], {
+    type: 'application/json'
+  });
+  const file = new File([blob], 'metadata.json', { type: 'application/json' });
+  
+  return uploadToIPFS(file, options);
+};
+
+// Helper function to convert IPFS URI to fastest gateway URL
+export const ipfsToHTTP = async (ipfsUri: string): Promise<string> => {
+  if (!ipfsUri.startsWith('ipfs://')) {
+    return ipfsUri;
   }
   
-  // If we got this far, we couldn't upload to any endpoint
-  // Return a fallback mock IPFS URL
-  const mockIPFS = `ipfs://${FALLBACK_MOCK_METADATA_CID}`;
-  console.warn('Using fallback mock metadata IPFS hash due to service failures');
-  
-  // Store in cache to avoid repeated failures
-  ipfsCache.set(cacheKey, mockIPFS);
-  
-  return mockIPFS;
+  const gateway = await getFastestGateway();
+  return `${gateway}${ipfsUri.replace('ipfs://', '')}`;
 };

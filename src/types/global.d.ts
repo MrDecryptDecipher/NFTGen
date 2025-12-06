@@ -39,7 +39,7 @@ declare module 'ipfs-http-client' {
   export interface IPFSHTTPClient {
     add(file: File | Blob | string | Uint8Array): Promise<AddResult>;
   }
-  
+
   export interface IPFSOptions {
     host: string;
     port: number;
@@ -48,7 +48,7 @@ declare module 'ipfs-http-client' {
       authorization: string;
     };
   }
-  
+
   export function create(options: IPFSOptions): IPFSHTTPClient;
 }
 
@@ -88,8 +88,8 @@ interface Buffer extends Uint8Array {
 // Global type declarations for the NFTGen application
 
 interface SentryInstance {
-  init: (config: any) => void;
-  captureException: (error: any) => void;
+  init: (config: Record<string, unknown>) => void;
+  captureException: (error: Error | unknown) => void;
   captureMessage: (message: string) => void;
 }
 
@@ -100,29 +100,79 @@ interface EthereumProvider {
   __nijaPatched?: boolean;
   chainId?: string;
   selectedAddress?: string;
-  request: (args: { method: string; params?: any[] }) => Promise<any>;
-  on: (event: string, callback: (...args: any[]) => void) => void;
-  removeListener: (event: string, callback: (...args: any[]) => void) => void;
-  [key: string]: any;
+  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
+  on: (event: string, callback: (...args: unknown[]) => void) => void;
+  removeListener: (event: string, callback: (...args: unknown[]) => void) => void;
+  [key: string]: unknown;
+}
+
+interface NFTActivity {
+  id?: string;
+  transactionHash?: string;
+  hash?: string;
+  type: string;
+  status: 'pending' | 'success' | 'failed';
+  timestamp?: number | string;
+  tokenId?: string;
+  tokenURI?: string;
+  to?: string;
+  from?: string;
+  name?: string;
+  description?: string;
+  image?: string;
+  externalUrl?: string;
+  nftgenUrl?: string;
+  details?: Record<string, unknown>;
+  source?: string;
+  metadata?: Record<string, unknown>;
+}
+
+interface NijaWalletProvider {
+  isNijaWallet: boolean;
+  name: string;
+  chainId?: string;
+  selectedAddress?: string;
+  sessionId?: string;
+  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
+  on: (event: string, callback: (...args: unknown[]) => void) => void;
+  removeListener: (event: string, callback: (...args: unknown[]) => void) => void;
+  sendTransaction: (params: Record<string, unknown>) => Promise<{ hash: string }>;
 }
 
 declare global {
   interface Window {
     // Ethereum provider
     ethereum?: EthereumProvider;
-    
+
     // Sentry error tracking
     Sentry?: SentryInstance;
     __SENTRY__?: { enabled: boolean };
-    
+
     // Nija Wallet integration
     nijaHeartbeatInterval?: NodeJS.Timeout;
-    emitEthereumEvent?: (eventName: string, ...args: any[]) => void;
-    
+    emitEthereumEvent?: (eventName: string, data: unknown) => void;
+    nijaWalletProvider?: NijaWalletProvider;
+    nijaWalletConnected?: boolean;
+    nijaWalletAddress?: string;
+    nijaWalletChainId?: string;
+    nijaWalletSessionId?: string;
+
+    // NFTGen WebSocket connection
+    nftGenWalletWs?: WebSocket;
+
+    // Environment flags
+    isNode?: boolean;
+    isBrowser?: boolean;
+    isWebWorker?: boolean;
+
     // Node.js polyfills
     global?: typeof globalThis;
     Buffer?: typeof Buffer;
-    process?: any;
+    process?: {
+      env: Record<string, string | undefined>;
+      browser?: boolean;
+      [key: string]: unknown;
+    };
   }
 }
 

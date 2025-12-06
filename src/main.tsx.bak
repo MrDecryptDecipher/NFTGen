@@ -1,0 +1,51 @@
+// Import polyfill first
+import './polyfill';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import { ApolloProvider } from '@apollo/client';
+import { client } from './lib/apollo';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './index.css';
+import { ErrorBoundary } from './components/ErrorBoundary';
+
+// Extend Window interface to include Sentry
+declare global {
+  interface Window {
+    Sentry?: {
+      init: (config: any) => void;
+      captureException: (error: any) => void;
+      captureMessage: (message: string) => void;
+    };
+    nijaHeartbeatInterval?: NodeJS.Timeout;
+    emitEthereumEvent?: (eventName: string, ...args: any[]) => void;
+    ethereum?: any;
+    __nftgenPatched?: boolean;
+  }
+}
+
+// Start the application directly
+console.log("Checking for Ethereum provider...");
+if (window.ethereum) {
+  console.log('Ethereum provider detected');
+} else {
+  console.log('No Ethereum provider detected');
+}
+
+// Create root only once
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
+
+// Render the app - WalletProvider inside App will handle connection
+root.render(
+  <React.StrictMode>
+    <ErrorBoundary>
+      <ApolloProvider client={client}>
+        <App /> 
+        <ToastContainer position="bottom-right" />
+      </ApolloProvider>
+    </ErrorBoundary>
+  </React.StrictMode>
+);

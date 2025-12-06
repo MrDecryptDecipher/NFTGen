@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Varint Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Varint Module Test</h1>
+        
+        <div id="status" class="status info">
+            Testing varint module...
+        </div>
+        
+        <h2>Test Results</h2>
+        <pre id="test-results"></pre>
+        
+        <button id="run-test">Run Test</button>
+    </div>
+
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusDiv = document.getElementById('status');
+            const testResultsDiv = document.getElementById('test-results');
+            const runTestButton = document.getElementById('run-test');
+            
+            async function testVarint() {
+                try {
+                    // Import the varint module
+                    const varintModule = await import('/src/utils/varint-wrapper.js');
+                    
+                    // Test the encode function
+                    const encoded = varintModule.encode(300);
+                    
+                    // Test the decode function
+                    const decoded = varintModule.decode(encoded);
+                    
+                    // Test the encodingLength function
+                    const length = varintModule.encodingLength(300);
+                    
+                    // Display the results
+                    const results = {
+                        encode: encoded ? 'Success' : 'Failed',
+                        decode: decoded === 300 ? 'Success' : `Failed (got ${decoded})`,
+                        encodingLength: length > 0 ? 'Success' : `Failed (got ${length})`,
+                        encodedValue: Array.from(encoded),
+                        decodedValue: decoded,
+                        lengthValue: length
+                    };
+                    
+                    testResultsDiv.textContent = JSON.stringify(results, null, 2);
+                    
+                    if (results.encode === 'Success' && results.decode === 'Success' && results.encodingLength === 'Success') {
+                        statusDiv.className = 'status success';
+                        statusDiv.textContent = 'Varint module is working correctly!';
+                    } else {
+                        statusDiv.className = 'status error';
+                        statusDiv.textContent = 'Varint module test failed. See details below.';
+                    }
+                } catch (error) {
+                    statusDiv.className = 'status error';
+                    statusDiv.textContent = `Error testing varint module: ${error.message}`;
+                    testResultsDiv.textContent = error.stack || error.toString();
+                    console.error('Varint test error:', error);
+                }
+            }
+            
+            // Run the test when the button is clicked
+            runTestButton.addEventListener('click', testVarint);
+            
+            // Also run the test automatically
+            testVarint();
+        });
+    </script>
+</body>
+</html>

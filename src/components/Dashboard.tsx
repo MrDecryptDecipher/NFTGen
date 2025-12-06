@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Alchemy, Network, AssetTransfersCategory } from 'alchemy-sdk';
+// Removed unused Alchemy imports
 import { toast } from 'react-toastify';
 import { NFT, TransferEvent } from '../types';
-import { formatIpfsUrl } from '../lib/utils';
+// Removed unused formatIpfsUrl import
 import { getNFTTransfers, getNFTMetadata } from '../lib/alchemy';
 
 interface DashboardProps {
@@ -55,9 +55,9 @@ export function Dashboard({ address }: DashboardProps) {
 
         // Filter out null values and set NFTs
         setNfts(nftResults.filter((nft): nft is NFT => nft !== null));
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error fetching transfers:', err);
-        setError(err.message || 'Failed to fetch transfers');
+        setError(err instanceof Error ? err.message : 'Failed to fetch transfers');
         toast.error('Failed to fetch transfers');
       } finally {
         setIsLoading(false);

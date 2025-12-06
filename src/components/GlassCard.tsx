@@ -4,9 +4,10 @@ import { clsx } from 'clsx';
 interface GlassCardProps {
   children: React.ReactNode;
   className?: string;
+  onClick?: () => void;
 }
 
-export const GlassCard: React.FC<GlassCardProps> = ({ children, className }) => {
+export const GlassCard: React.FC<GlassCardProps> = ({ children, className = '', onClick }) => {
   return (
     <div
       className={clsx(
@@ -15,6 +16,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({ children, className }) => 
         'hover:bg-white/20 hover:shadow-2xl',
         className
       )}
+      onClick={onClick}
     >
       {children}
     </div>

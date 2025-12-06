@@ -1,46 +1,100 @@
-# Local Netlify folder
-.netlify
-
 # Dependencies
 node_modules/
-.pnp/
-.pnp.js
-
-# Testing
-coverage/
-
-# Production
-dist/
-build/
-
-# Environment files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Logs
-logs/
-*.log
+package-lock.json
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
+# Build outputs
+dist/
+build/
+artifacts/
+cache/
+typechain-types/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+# encryption keys
+.secret
+
+# Logs
+logs/
+*.log
+browserconsole.txt
+allissues.txt
+
+# Editor/IDE
+.vscode/
 .idea/
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+*.swp
+*.swo
 
-# TypeScript
-*.tsbuildinfo
+# Analysis & Reports
+analysis-reports/
+analysis-reports-v2/
+*.md
+!README.md
 
-# Vite
-.vite/
+# Temporary & Debug Scripts
+*.cjs
+*.js
+*.sh
+*.json
+*.html
+*.txt
+*.patch
+*.log
+
+# Whitelist vital configs and scripts
+!/src/**
+!/api/**
+!/public/**
+!/scripts/**
+!/contracts/**
+!/server/**
+!/websocket/**
+!/nginx/**
+!/docs/**
+
+# Nested Projects
+projects/
+
+# Specific Junk Files
+test-image.png
+
+
+# Root level config whitelists
+!vite.config.js
+!vite.config.ts
+!hardhat.config.js
+!hardhat.config.cjs
+!postcss.config.js
+!tailwind.config.js
+!eslint.config.js
+!ecosystem.config.cjs
+!package.json
+!package-lock.json
+!tsconfig.json
+!tsconfig.*.json
+!vercel.json
+!.gitignore
+!.env.example
+!README.md
+!LICENSE
+!CHANGELOG.md
+
+# Explicitly ignore known junk in whitelisted dirs if necessary
+# (But above whitelisting /src/** keeps everything in src, which is usually accurate)
+
+# Re-ignore specific junk that might be in whitelisted folders or root if missed
+BrowserConsole.txt
+allissues.txt
+simple-nft-deployment.json
+deployment-info.json
+

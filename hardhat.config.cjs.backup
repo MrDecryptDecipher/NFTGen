@@ -1,0 +1,38 @@
+/**
+ * Hardhat Configuration
+ * 
+ * Note: This configuration is used only for compilation.
+ * For deployment, we use the Nwallet integration script instead of Hardhat's deployment.
+ */
+
+require("dotenv").config();
+require("@nomiclabs/hardhat-ethers");
+
+module.exports = {
+  solidity: {
+    compilers: [
+      {
+        version: "0.8.24",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+      {
+        version: "0.8.20",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+    ],
+  },
+  defaultNetwork: "hardhat",
+  networks: {
+    hardhat: {}
+  },
+}; 

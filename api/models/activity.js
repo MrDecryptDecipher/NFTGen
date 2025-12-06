@@ -42,10 +42,18 @@ const activitySchema = new mongoose.Schema({
   }
 });
 
-// Index for faster querying by addresses
-activitySchema.index({ from: 1 });
-activitySchema.index({ to: 1 });
+// Performance indexes for faster querying
+activitySchema.index({ from: 1 }); // Query by sender address
+activitySchema.index({ to: 1 }); // Query by receiver address
+activitySchema.index({ tokenId: 1 }); // Query by tokenId
+activitySchema.index({ type: 1 }); // Query by activity type
+activitySchema.index({ timestamp: -1 }); // Sort by timestamp (newest first)
+activitySchema.index({ transactionHash: 1 }); // Query by transaction hash
+activitySchema.index({ tokenId: 1, timestamp: -1 }); // Compound index for token activity timeline
+activitySchema.index({ from: 1, timestamp: -1 }); // Compound index for user activity timeline
+activitySchema.index({ to: 1, timestamp: -1 }); // Compound index for user received activity
+activitySchema.index({ type: 1, timestamp: -1 }); // Compound index for activity type + date
 
 const Activity = mongoose.model('Activity', activitySchema);
 
-module.exports = Activity; 
+module.exports = Activity;

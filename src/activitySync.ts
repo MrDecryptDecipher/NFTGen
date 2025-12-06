@@ -1,30 +1,42 @@
-import { API_BASE_URL } from './config';
+/**
+ * ActivitySync module for handling WebSocket connections to Nwallet
+ */
 
+/**
+ * Options for configuring the ActivitySync class
+ */
 interface ActivitySyncOptions {
-  onTransactionUpdate?: (transaction: any) => void;
+  /** Callback for transaction updates */
+  onTransactionUpdate?: (transaction: Record<string, unknown>) => void;
+  /** Callback for port changes */
   onPortChange?: (port: number) => void;
+  /** Callback for error handling */
   onError?: (error: Error) => void;
-  onMetricsUpdate?: (metrics: any) => void;
-}
-
-interface WsConfig {
-  onMessage?: (data: any) => void;
-  onConnect?: () => void;
-  onDisconnect?: () => void;
-  onError?: (error: Error) => void;
-  onTransactionUpdate?: (txHash: string, status: string) => void;
-  onPortChange?: (port: number) => void;
+  /** Callback for metrics updates */
   onMetricsUpdate?: (metrics: ConnectionMetrics) => void;
 }
 
+// Removed unused WsConfig interface
+
+/**
+ * Connection metrics data structure
+ */
 interface ConnectionMetrics {
+  /** Connection latency in milliseconds */
   latency: number;
+  /** Number of messages received */
   messageCount: number;
+  /** Number of errors encountered */
   errorCount: number;
+  /** Timestamp of last heartbeat */
   lastHeartbeat: number;
+  /** Number of reconnection attempts */
   reconnections: number;
+  /** Current WebSocket port */
   currentPort: number;
+  /** Connection uptime in milliseconds */
   uptime: number;
+  /** Current connection status */
   status: 'connected' | 'disconnected' | 'reconnecting';
 }
 
@@ -48,26 +60,53 @@ export class ActivitySync {
   private readonly PORT_CHECK_TIMEOUT = 3000;
   private readonly HEARTBEAT_INTERVAL = 30000;
   private readonly METRICS_INTERVAL = 60000;
-  private readonly WS_PORTS = [5175, 5176, 5177, 5178, 5179, 5180, 5181, 5182, 5183, 5184];
+  private readonly WS_PORTS = [6103]; // Updated to use Nwallet WebSocket port
   private currentPortIndex = 0;
-  private readonly WS_BASE_URL = import.meta.env.VITE_WS_URL || 'ws://3.111.22.56';
+  // Use a constant for WebSocket base URL instead of import.meta which causes TypeScript errors
+  private readonly WS_BASE_URL = 'ws://3.111.22.56';
   private isSecure = window.location.protocol === 'https:';
   private portAvailabilityCache: Map<number, boolean> = new Map();
   private lastPortCheckTime: Map<number, number> = new Map();
   private readonly PORT_CHECK_CACHE_DURATION = 180000;
 
+  /**
+   * Logging utility for ActivitySync
+   */
   private readonly log = {
-    info: (message: string, data?: any) => {
-      console.log(`[ActivitySync] ℹ️ ${message}`, data || '');
+    /**
+     * Log informational messages
+     * @param message The message to log
+     * @param data Optional data to include
+     */
+    info: (message: string, data?: unknown): void => {
+      console.log(`[ActivitySync] 🔌 ${message}`, data || '');
     },
-    warn: (message: string, error?: any) => {
+
+    /**
+     * Log warning messages
+     * @param message The warning message
+     * @param error Optional error information
+     */
+    warn: (message: string, error?: unknown): void => {
       console.warn(`[ActivitySync] ⚠️ ${message}`, error || '');
     },
-    error: (message: string, error?: any) => {
+
+    /**
+     * Log error messages
+     * @param message The error message
+     * @param error Optional error object
+     */
+    error: (message: string, error?: unknown): void => {
       console.error(`[ActivitySync] ❌ ${message}`, error || '');
       this.errorCount++;
     },
-    success: (message: string, data?: any) => {
+
+    /**
+     * Log success messages
+     * @param message The success message
+     * @param data Optional data to include
+     */
+    success: (message: string, data?: unknown): void => {
       console.log(`[ActivitySync] ✅ ${message}`, data || '');
     }
   };
@@ -81,13 +120,22 @@ export class ActivitySync {
     const protocol = this.isSecure ? 'wss' : 'ws';
     const port = this.WS_PORTS[this.currentPortIndex];
     const baseUrl = this.WS_BASE_URL.replace(/^(ws|wss):\/\//, '');
-    return `${protocol}://${baseUrl}:${port}/ws?address=${address}&v=1.0.0`;
+
+    // Get session ID from localStorage if available
+    const sessionData = localStorage.getItem('nija_wallet_session');
+    const sessionId = sessionData ? JSON.parse(sessionData).sessionId || '' : '';
+
+    // Include sessionId, address, app name, version, and origin in the URL
+    const wsUrl = `${protocol}://${baseUrl}:${port}/ws?sessionId=${sessionId}&address=${address}&app=NFTGen&v=1.0.0&origin=${encodeURIComponent(window.location.origin)}`;
+
+    this.log.info(`WebSocket URL: ${wsUrl}`);
+    return wsUrl;
   }
 
   private async checkPortAvailability(port: number): Promise<boolean> {
     const now = Date.now();
     const lastCheck = this.lastPortCheckTime.get(port);
-    
+
     if (lastCheck && now - lastCheck < this.PORT_CHECK_CACHE_DURATION) {
       this.log.info(`Using cached availability for port ${port}`);
       return this.portAvailabilityCache.get(port) || false;
@@ -108,11 +156,11 @@ export class ActivitySync {
 
       clearTimeout(this.portCheckTimeout);
       const latency = performance.now() - startTime;
-      
+
       const isAvailable = response.ok;
       this.portAvailabilityCache.set(port, isAvailable);
       this.lastPortCheckTime.set(port, now);
-      
+
       this.log[isAvailable ? 'success' : 'warn'](`Port ${port} availability check: ${isAvailable} (${latency.toFixed(2)}ms)`);
       return isAvailable;
     } catch (error) {
@@ -181,15 +229,18 @@ export class ActivitySync {
       }
 
       this.clearTimeouts();
-      this.log.info('Initializing WebSocket connection...');
-      
+      this.log.info('Initializing WebSocket connection to Nija Wallet...');
+
+      // Get wallet connection info from localStorage
       const walletInfo = localStorage.getItem('nija_wallet_connection');
       if (!walletInfo) {
-        throw new Error('No wallet connection found');
+        this.log.warn('No wallet connection found in localStorage. Using empty address.');
+        // Continue with empty address instead of throwing an error
       }
 
-      const { address } = JSON.parse(walletInfo);
-      
+      // Extract address from wallet info or use empty string
+      const address = walletInfo ? JSON.parse(walletInfo).address || '' : '';
+
       const availablePort = await this.findAvailablePort();
       if (!availablePort) {
         throw new Error('No available ports found');
@@ -198,7 +249,7 @@ export class ActivitySync {
       if (this.options.onPortChange) {
         this.options.onPortChange(availablePort);
       }
-      
+
       this.connectionTimeout = setTimeout(() => {
         this.log.error(`Connection timeout on port ${availablePort}`);
         this.ws?.close();
@@ -208,9 +259,10 @@ export class ActivitySync {
       }, this.CONNECTION_TIMEOUT);
 
       const wsUrl = this.getCurrentWsUrl(address);
-      this.log.info(`Connecting to ${wsUrl}`);
-      
+      this.log.info(`Attempting to connect to WebSocket at ${wsUrl}`);
+
       this.ws = new WebSocket(wsUrl);
+      this.log.info('WebSocket object created');
       this.connectionStartTime = Date.now();
 
       this.ws.onopen = () => {
@@ -233,8 +285,8 @@ export class ActivitySync {
         }
       };
 
-      this.ws.onclose = () => {
-        this.log.warn('Connection closed');
+      this.ws.onclose = (event) => {
+        this.log.warn(`WebSocket connection closed: ${event.code}`);
         this.clearTimeouts();
         this.stopHeartbeat();
         this.stopMetricsTracking();
@@ -254,7 +306,7 @@ export class ActivitySync {
           const data = JSON.parse(event.data);
           this.messageCount++;
           this.log.info(`Received message: ${data.type}`);
-          
+
           switch (data.type) {
             case 'heartbeat-response':
               this.lastHeartbeatTime = Date.now();
@@ -281,7 +333,7 @@ export class ActivitySync {
               }
               break;
           }
-          
+
           this.updateMetrics();
         } catch (error) {
           this.log.error('Failed to parse message:', error);
@@ -302,10 +354,10 @@ export class ActivitySync {
 
   private startHeartbeat() {
     this.stopHeartbeat();
-    
+
     this.heartbeatInterval = setInterval(() => {
       if (this.ws?.readyState === WebSocket.OPEN) {
-        this.ws.send(JSON.stringify({ 
+        this.ws.send(JSON.stringify({
           type: 'heartbeat',
           timestamp: Date.now(),
           port: this.WS_PORTS[this.currentPortIndex]
@@ -334,21 +386,21 @@ export class ActivitySync {
 
   private async reconnect(immediate = false) {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      this.log.error('Max reconnection attempts reached');
+      this.log.error('Max reconnect attempts reached. Please check the WebSocket server.');
       this.options.onError?.(new Error('Max reconnection attempts reached'));
       return;
     }
 
     this.reconnectAttempts++;
-    
+
     if (this.reconnectAttempts % 2 === 0) {
       this.portAvailabilityCache.clear();
       this.lastPortCheckTime.clear();
     }
 
     const delay = immediate ? 0 : Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
-    
-    this.log.info(`Reconnecting in ${delay/1000}s (Attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+
+    this.log.info(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
     setTimeout(() => this.connect(), delay);
   }
 
@@ -362,4 +414,4 @@ export class ActivitySync {
       this.ws = null;
     }
   }
-} 
+}
