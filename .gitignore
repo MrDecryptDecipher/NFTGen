@@ -1,4 +1,13 @@
-# Dependencies
+# Backups and Temporary Files
+*.bak
+*.backup
+*.old
+*.new
+*.orig
+*.tmp
+*.timestamp-*.mjs
+
+# Logs
 node_modules/
 package-lock.json
 npm-debug.log*
@@ -62,11 +71,30 @@ analysis-reports-v2/
 !/nginx/**
 !/docs/**
 
-# Nested Projects
+# Projects and Junk
 projects/
+api/logs/
+api/test-*.js
+src/*.backup
+src/*.bak
+src/TestApp.tsx
+public/debug.html
+public/fix-*.html
+public/varint-test.html
+public/placeholder-nft.html
+public/verify-integration.html
+nftgen-nginx-*.conf
+nftgen-*.conf
+nginx-*.conf
+!nginx.conf
+api/debug-server.js
+api/minimal-server.js
+check-network.mjs
+network-check.js
+restart-server.sh
 
-# Specific Junk Files
-test-image.png
+# Final overrides to ensure node_modules are NEVER tracked even if inside whitelisted dirs
+**/node_modules/
 
 
 # Root level config whitelists
